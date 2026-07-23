@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E7A5F">
+<title>RDVmed</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --fond:#F7F5F0; --carte:#FFFFFF; --encre:#1F2A24; --gris:#6B746E;
+  --vert:#0E7A5F; --vert-f:#0A5C48; --orange:#E8730C; --rouge:#C2362B;
+  --ligne:#E4E0D6; --r:14px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+body{margin:0; font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; background:var(--fond); color:var(--encre); padding-bottom:76px}
+header{position:sticky; top:0; z-index:10; background:var(--vert); color:#fff; padding:12px 16px calc(12px + env(safe-area-inset-top,0)) 16px; display:flex; align-items:center; justify-content:space-between}
+header h1{margin:0; font-size:19px; font-weight:700; letter-spacing:.3px}
+header .ver{font-size:11px; opacity:.75; margin-left:6px; font-weight:400}
+#badgeUser{font-size:12px; background:rgba(255,255,255,.18); padding:4px 10px; border-radius:20px; max-width:40%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+#syncDot{display:inline-block; width:8px; height:8px; border-radius:50%; background:#bbb; margin-right:5px; vertical-align:1px}
+#syncDot.on{background:#7CF2C5} #syncDot.err{background:#FF9A8C}
+main{padding:12px 12px 0}
+.section-titre{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--gris); margin:16px 4px 8px; display:flex; align-items:center; gap:8px}
+.section-titre.retard{color:var(--rouge)}
+.pastille{background:var(--rouge); color:#fff; font-size:12px; border-radius:12px; padding:1px 8px}
+.carte{background:var(--carte); border:1px solid var(--ligne); border-radius:var(--r); padding:12px 12px 10px; margin-bottom:10px}
+.carte.retard{border-left:5px solid var(--rouge)}
+.carte.jour{border-left:5px solid var(--vert)}
+.ligne1{display:flex; justify-content:space-between; align-items:baseline; gap:8px}
+.nom{font-size:17px; font-weight:700}
+.date{font-size:13px; color:var(--gris); white-space:nowrap}
+.date.rouge{color:var(--rouge); font-weight:700}
+.tags{margin:5px 0 2px; display:flex; flex-wrap:wrap; gap:6px}
+.tag{font-size:12px; padding:3px 9px; border-radius:20px; background:#EEF5F1; color:var(--vert-f); font-weight:600}
+.tag.t-specialiste{background:#FDEEDD; color:#9A4E06}
+.tag.t-posthosp{background:#E9EEFA; color:#2B4B9B}
+.note{font-size:13px; color:var(--gris); margin-top:3px}
+.par{font-size:11px; color:#9AA39D; margin-top:4px}
+.actions{display:flex; gap:8px; margin-top:10px}
+.actions button{flex:1; border:none; border-radius:10px; padding:11px 4px; font-size:14px; font-weight:700; cursor:pointer}
+.b-vu{background:var(--vert); color:#fff}
+.b-wa{background:#E7F6EC; color:#0B6B33}
+.b-tel{background:#F0EFE9; color:var(--encre)}
+.b-plus{background:#F0EFE9; color:var(--encre); flex:0 0 44px}
+.vide{text-align:center; color:var(--gris); padding:36px 20px; font-size:15px}
+.vide .ico{font-size:34px; display:block; margin-bottom:8px}
+/* onglets bas */
+nav{position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--ligne); display:flex; z-index:10; padding-bottom:env(safe-area-inset-bottom,0)}
+nav button{flex:1; border:none; background:none; padding:9px 2px 7px; font-size:11px; color:var(--gris); cursor:pointer; position:relative}
+nav button .ic{display:block; font-size:20px; margin-bottom:1px}
+nav button.actif{color:var(--vert); font-weight:700}
+nav .bulle{position:absolute; top:3px; right:calc(50% - 22px); background:var(--rouge); color:#fff; font-size:10px; border-radius:10px; padding:1px 6px; font-weight:700}
+/* FAB */
+#fab{position:fixed; right:16px; bottom:calc(72px + env(safe-area-inset-bottom,0)); width:58px; height:58px; border-radius:50%; background:var(--orange); color:#fff; font-size:30px; border:none; box-shadow:0 4px 14px rgba(0,0,0,.25); z-index:11; cursor:pointer}
+/* formulaires / feuilles */
+.feuille{position:fixed; inset:0; background:var(--fond); z-index:20; overflow-y:auto; padding-bottom:30px; display:none}
+.feuille.ouverte{display:block}
+.feuille header{background:var(--vert)}
+.feuille header button{background:none; border:none; color:#fff; font-size:22px; cursor:pointer; padding:0 4px}
+.form{padding:14px}
+label{display:block; font-size:13px; font-weight:700; color:var(--gris); margin:14px 2px 6px}
+input[type=text],input[type=tel],input[type=date],input[type=url],textarea,select{width:100%; padding:13px; border:1px solid var(--ligne); border-radius:10px; font-size:16px; background:#fff; color:var(--encre)}
+textarea{min-height:64px; resize:vertical}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{padding:10px 14px; border-radius:22px; border:1.5px solid var(--ligne); background:#fff; font-size:14px; font-weight:600; cursor:pointer; color:var(--encre)}
+.chip.sel{background:var(--vert); border-color:var(--vert); color:#fff}
+.chip.orange.sel{background:var(--orange); border-color:var(--orange)}
+.gros{width:100%; margin-top:22px; padding:16px; border:none; border-radius:12px; background:var(--vert); color:#fff; font-size:17px; font-weight:800; cursor:pointer}
+.gros.sec{background:#fff; color:var(--encre); border:1.5px solid var(--ligne); margin-top:10px; font-weight:600}
+.gros.danger{background:#fff; color:var(--rouge); border:1.5px solid #F1C9C4}
+/* recherche + filtres */
+.barre{display:flex; gap:8px; margin-bottom:10px}
+.barre input{flex:1}
+.filtres{display:flex; gap:6px; overflow-x:auto; padding:2px 0 8px}
+.filtres .chip{padding:7px 12px; font-size:13px; white-space:nowrap}
+/* toast */
+#toast{position:fixed; bottom:calc(84px + env(safe-area-inset-bottom,0)); left:50%; transform:translateX(-50%); background:var(--encre); color:#fff; padding:10px 18px; border-radius:24px; font-size:14px; z-index:50; display:none; max-width:88%}
+/* modale reporter */
+#voile{position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:30; display:none; align-items:flex-end}
+#voile.ouvert{display:flex}
+.modale{background:#fff; width:100%; border-radius:18px 18px 0 0; padding:18px 16px calc(24px + env(safe-area-inset-bottom,0))}
+.modale h3{margin:0 0 12px; font-size:16px}
+.info-sync{font-size:12px; color:var(--gris); margin-top:6px}
+.stat-ligne{display:flex; justify-content:space-between; padding:10px 2px; border-bottom:1px solid var(--ligne); font-size:14px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>RDVmed <span class="ver">v1</span></h1>
+  <span id="badgeUser" onclick="ouvrirOnglet('reglages')"><span id="syncDot"></span><span id="badgeNom">—</span></span>
+</header>
+
+<main id="vue"></main>
+
+<button id="fab" onclick="ouvrirNouveau()" aria-label="Nouveau suivi">＋</button>
+
+<nav>
+  <button id="nav-jour" class="actif" onclick="ouvrirOnglet('jour')"><span class="ic">📋</span>Aujourd'hui<span class="bulle" id="bulleRetard" style="display:none"></span></button>
+  <button id="nav-avenir" onclick="ouvrirOnglet('avenir')"><span class="ic">🗓️</span>À venir</button>
+  <button id="nav-histo" onclick="ouvrirOnglet('histo')"><span class="ic">✅</span>Historique</button>
+  <button id="nav-reglages" onclick="ouvrirOnglet('reglages')"><span class="ic">⚙️</span>Réglages</button>
+</nav>
+
+<!-- Feuille : nouveau / modifier -->
+<div class="feuille" id="feuilleForm">
+  <header><h1 id="titreForm">Nouveau suivi</h1><button onclick="fermerForm()">✕</button></header>
+  <div class="form">
+    <label>Nom du patient *</label>
+    <input type="text" id="f_nom" placeholder="Nom et prénoms" autocomplete="off">
+    <label>Téléphone</label>
+    <input type="tel" id="f_tel" placeholder="07 00 00 00 00" inputmode="tel">
+    <label>Type de passage *</label>
+    <div class="chips" id="f_type">
+      <button class="chip orange" data-v="specialiste" onclick="selType(this)">RDV spécialiste</button>
+      <button class="chip" data-v="posthosp" onclick="selType(this)">Contrôle post-hospitalisation</button>
+      <button class="chip sel" data-v="controle" onclick="selType(this)">Contrôle simple</button>
+    </div>
+    <label>Spécialité / motif</label>
+    <input type="text" id="f_spec" list="specs" placeholder="Ex. Cardiologie, pansement…" autocomplete="off">
+    <datalist id="specs">
+      <option>Cardiologie</option><option>Gynécologie</option><option>Pédiatrie</option>
+      <option>Chirurgie</option><option>Ophtalmologie</option><option>ORL</option>
+      <option>Dermatologie</option><option>Neurologie</option><option>Gastro-entérologie</option>
+      <option>Urologie</option><option>Rhumatologie</option><option>Pneumologie</option>
+      <option>Endocrinologie</option><option>Psychiatrie</option><option>Kinésithérapie</option>
+      <option>Pansement</option><option>Bilan de contrôle</option><option>Retrait de fils</option>
+    </datalist>
+    <label>Date prévue *</label>
+    <div class="chips" style="margin-bottom:8px">
+      <button class="chip" onclick="dateRapide(3)">+3 j</button>
+      <button class="chip" onclick="dateRapide(7)">+7 j</button>
+      <button class="chip" onclick="dateRapide(15)">+15 j</button>
+      <button class="chip" onclick="dateRapide(30)">+1 mois</button>
+      <button class="chip" onclick="dateRapide(90)">+3 mois</button>
+    </div>
+    <input type="date" id="f_date">
+    <label>Note (optionnel)</label>
+    <textarea id="f_note" placeholder="Ex. apporter les résultats d'analyses…"></textarea>
+    <button class="gros" onclick="enregistrer()">Enregistrer</button>
+  </div>
+</div>
+
+<!-- Modale reporter -->
+<div id="voile" onclick="if(event.target===this)fermerVoile()">
+  <div class="modale">
+    <h3>Reporter le rendez-vous</h3>
+    <div class="chips" style="margin-bottom:10px">
+      <button class="chip" onclick="reporter(3)">+3 j</button>
+      <button class="chip" onclick="reporter(7)">+7 j</button>
+      <button class="chip" onclick="reporter(15)">+15 j</button>
+      <button class="chip" onclick="reporter(30)">+1 mois</button>
+    </div>
+    <input type="date" id="r_date" onchange="reporterDate(this.value)">
+    <button class="gros danger" onclick="annulerRdv()">✕ Annuler / perdu de vue</button>
+    <button class="gros sec" onclick="fermerVoile()">Fermer</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ================= ÉTAT ================= */
+const CLE='rdvmed_data';
+let etat = charger();
+let ongletActif='jour';
+let editId=null, cibleId=null;
+
+function charger(){
+  try{ const d=JSON.parse(localStorage.getItem(CLE)); if(d&&d.records) return d; }catch(e){}
+  return {records:[], user:'', supa:{url:'',key:''}, lastPull:''};
+}
+function sauver(){ localStorage.setItem(CLE, JSON.stringify(etat)); }
+function uuid(){ return (crypto.randomUUID?crypto.randomUUID():'id-'+Date.now()+'-'+Math.random().toString(36).slice(2)); }
+function auj(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtFR(s){ if(!s) return ''; const d=new Date(s+'T12:00:00');
+  return d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:(d.getFullYear()!==new Date().getFullYear()?'numeric':undefined)}); }
+function joursDiff(s){ const a=new Date(auj()+'T12:00:00'), b=new Date(s+'T12:00:00'); return Math.round((b-a)/86400000); }
+const NOMTYPE={specialiste:'RDV spécialiste', posthosp:'Post-hospitalisation', controle:'Contrôle'};
+
+/* ================= RENDU ================= */
+function actifs(){ return etat.records.filter(r=>!r.deleted && r.statut==='attente'); }
+function retards(){ return actifs().filter(r=>r.date<auj()).sort((a,b)=>a.date<b.date?-1:1); }
+
+function rendre(){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('actif'));
+  document.getElementById('nav-'+ongletActif).classList.add('actif');
+  const nR=retards().length, bulle=document.getElementById('bulleRetard');
+  bulle.style.display=nR?'':'none'; bulle.textContent=nR;
+  document.getElementById('badgeNom').textContent = etat.user||'Réglages';
+  const v=document.getElementById('vue');
+  if(ongletActif==='jour') v.innerHTML=vueJour();
+  else if(ongletActif==='avenir') v.innerHTML=vueAvenir();
+  else if(ongletActif==='histo') v.innerHTML=vueHisto();
+  else v.innerHTML=vueReglages();
+}
+function ouvrirOnglet(o){ ongletActif=o; rendre(); window.scrollTo(0,0); }
+
+function carteHTML(r, classe){
+  const d=joursDiff(r.date);
+  let dateTxt = fmtFR(r.date);
+  if(d<0) dateTxt = `Retard de ${-d} j — `+dateTxt;
+  else if(d===0) dateTxt = "Aujourd'hui";
+  return `<div class="carte ${classe}">
+    <div class="ligne1"><span class="nom">${ech(r.nom)}</span><span class="date ${d<0?'rouge':''}">${dateTxt}</span></div>
+    <div class="tags"><span class="tag t-${r.type}">${NOMTYPE[r.type]||r.type}</span>${r.spec?`<span class="tag">${ech(r.spec)}</span>`:''}</div>
+    ${r.note?`<div class="note">${ech(r.note)}</div>`:''}
+    ${r.created_by?`<div class="par">Ajouté par ${ech(r.created_by)}</div>`:''}
+    <div class="actions">
+      <button class="b-vu" onclick="marquerVu('${r.id}')">✓ Vu</button>
+      ${r.tel?`<button class="b-wa" onclick="relanceWA('${r.id}')">💬</button>
+      <button class="b-tel" onclick="appeler('${r.id}')">📞</button>`:''}
+      <button class="b-plus" onclick="ouvrirPlus('${r.id}')">⋯</button>
+    </div>
+  </div>`;
+}
+function ech(t){ return String(t).replace(/[<>&"]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+function vueJour(){
+  const re=retards();
+  const jour=actifs().filter(r=>r.date===auj()).sort((a,b)=>a.nom.localeCompare(b.nom));
+  let h='';
+  if(re.length){ h+=`<div class="section-titre retard">En retard <span class="pastille">${re.length}</span></div>`+re.map(r=>carteHTML(r,'retard')).join(''); }
+  if(jour.length){ h+=`<div class="section-titre">Aujourd'hui</div>`+jour.map(r=>carteHTML(r,'jour')).join(''); }
+  if(!h) h=`<div class="vide"><span class="ico">🌿</span>Aucun passage prévu aujourd'hui.<br>Appuyez sur ＋ pour ajouter un suivi.</div>`;
+  return h;
+}
+
+let filtreType='', rechAvenir='';
+function vueAvenir(){
+  let liste=actifs().filter(r=>r.date>auj());
+  if(filtreType) liste=liste.filter(r=>r.type===filtreType);
+  if(rechAvenir) liste=liste.filter(r=>r.nom.toLowerCase().includes(rechAvenir));
+  liste.sort((a,b)=>a.date<b.date?-1:1);
+  let h=`<div class="barre" style="margin-top:12px"><input type="text" placeholder="🔍 Rechercher un patient…" value="${rechAvenir}" oninput="rechAvenir=this.value.toLowerCase();majListe()"></div>
+  <div class="filtres">
+    ${['','specialiste','posthosp','controle'].map(t=>`<button class="chip ${filtreType===t?'sel':''}" onclick="filtreType='${t}';rendre()">${t?NOMTYPE[t]:'Tous'}</button>`).join('')}
+  </div><div id="listeA">`;
+  h+=listeAvenirHTML(liste)+'</div>';
+  return h;
+}
+function listeAvenirHTML(liste){
+  if(!liste.length) return `<div class="vide"><span class="ico">🗓️</span>Aucun passage à venir.</div>`;
+  let h='', dCour='';
+  for(const r of liste){
+    if(r.date!==dCour){ dCour=r.date; h+=`<div class="section-titre">${fmtFR(r.date)} · dans ${joursDiff(r.date)} j</div>`; }
+    h+=carteHTML(r,'');
+  }
+  return h;
+}
+function majListe(){
+  let liste=actifs().filter(r=>r.date>auj());
+  if(filtreType) liste=liste.filter(r=>r.type===filtreType);
+  if(rechAvenir) liste=liste.filter(r=>r.nom.toLowerCase().includes(rechAvenir));
+  liste.sort((a,b)=>a.date<b.date?-1:1);
+  document.getElementById('listeA').innerHTML=listeAvenirHTML(liste);
+}
+
+let rechH='';
+function vueHisto(){
+  let liste=etat.records.filter(r=>!r.deleted && r.statut!=='attente');
+  if(rechH) liste=liste.filter(r=>r.nom.toLowerCase().includes(rechH));
+  liste.sort((a,b)=>(b.vu_at||b.updated_at||'').localeCompare(a.vu_at||a.updated_at||''));
+  let h=`<div class="barre" style="margin-top:12px"><input type="text" placeholder="🔍 Rechercher…" value="${rechH}" oninput="rechH=this.value.toLowerCase();rendre()"></div>`;
+  if(!liste.length) return h+`<div class="vide"><span class="ico">✅</span>Historique vide.</div>`;
+  for(const r of liste.slice(0,200)){
+    h+=`<div class="carte"><div class="ligne1"><span class="nom">${ech(r.nom)}</span>
+      <span class="date">${r.statut==='vu'?'✓ Vu':'✕ Annulé'} · ${fmtFR((r.vu_at||'').slice(0,10)||r.date)}</span></div>
+      <div class="tags"><span class="tag t-${r.type}">${NOMTYPE[r.type]||r.type}</span>${r.spec?`<span class="tag">${ech(r.spec)}</span>`:''}</div>
+      <div class="actions"><button class="b-tel" onclick="reprogrammer('${r.id}')">↺ Reprogrammer</button>
+      <button class="b-plus" onclick="supprimer('${r.id}')">🗑️</button></div></div>`;
+  }
+  return h;
+}
+
+function vueReglages(){
+  const n=etat.records.filter(r=>!r.deleted).length;
+  return `<label>Votre nom (affiché sur les ajouts)</label>
+  <input type="text" id="g_user" value="${ech(etat.user)}" placeholder="Ex. Dr Balet / Secrétariat" onchange="etat.user=this.value.trim();sauver();rendre()">
+  <div class="section-titre" style="margin-top:22px">Synchronisation (Supabase)</div>
+  <label>URL du projet</label>
+  <input type="url" id="g_url" value="${ech(etat.supa.url)}" placeholder="https://xxxx.supabase.co" onchange="etat.supa.url=this.value.trim();sauver()">
+  <label>Clé anon (publique)</label>
+  <input type="text" id="g_key" value="${ech(etat.supa.key)}" placeholder="eyJ…" onchange="etat.supa.key=this.value.trim();sauver()">
+  <button class="gros" onclick="synchroniser(true)">🔄 Synchroniser maintenant</button>
+  <div class="info-sync" id="infoSync">${etat.lastPull?('Dernière synchro : '+new Date(etat.lastPull).toLocaleString('fr-FR')):'Jamais synchronisé. Sans Supabase, l\u2019application fonctionne en local sur cet appareil.'}</div>
+  <div class="section-titre" style="margin-top:22px">Données (${n} fiches)</div>
+  <button class="gros sec" onclick="exportCSV()">⬇️ Exporter en CSV</button>
+  <button class="gros sec" onclick="exportJSON()">💾 Sauvegarde JSON</button>
+  <button class="gros sec" onclick="document.getElementById('g_fic').click()">📂 Restaurer une sauvegarde</button>
+  <input type="file" id="g_fic" accept=".json" style="display:none" onchange="restaurer(this.files[0])">
+  <div class="info-sync" style="margin-top:18px">RDVmed v1 — suivi des rendez-vous et contrôles.<br>Dr Balet, 0767087494</div>`;
+}
+
+/* ================= ACTIONS ================= */
+function ouvrirNouveau(){
+  editId=null;
+  document.getElementById('titreForm').textContent='Nouveau suivi';
+  ['f_nom','f_tel','f_spec','f_note'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('f_date').value='';
+  document.querySelectorAll('#f_type .chip').forEach(c=>c.classList.toggle('sel',c.dataset.v==='controle'));
+  document.getElementById('feuilleForm').classList.add('ouverte');
+  setTimeout(()=>document.getElementById('f_nom').focus(),150);
+}
+function fermerForm(){ document.getElementById('feuilleForm').classList.remove('ouverte'); }
+function selType(el){ document.querySelectorAll('#f_type .chip').forEach(c=>c.classList.remove('sel')); el.classList.add('sel'); }
+function dateRapide(j){ const d=new Date(); d.setDate(d.getDate()+j);
+  document.getElementById('f_date').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+function enregistrer(){
+  const nom=document.getElementById('f_nom').value.trim();
+  const date=document.getElementById('f_date').value;
+  const type=(document.querySelector('#f_type .chip.sel')||{}).dataset?.v||'controle';
+  if(!nom){ toast('Le nom du patient est requis'); return; }
+  if(!date){ toast('Choisissez la date prévue'); return; }
+  const t=new Date().toISOString();
+  if(editId){
+    const r=etat.records.find(x=>x.id===editId);
+    Object.assign(r,{nom, tel:document.getElementById('f_tel').value.trim(), type,
+      spec:document.getElementById('f_spec').value.trim(), date,
+      note:document.getElementById('f_note').value.trim(), updated_at:t});
+  } else {
+    etat.records.push({id:uuid(), nom, tel:document.getElementById('f_tel').value.trim(), type,
+      spec:document.getElementById('f_spec').value.trim(), date,
+      note:document.getElementById('f_note').value.trim(),
+      statut:'attente', vu_at:null, created_by:etat.user||'', deleted:0,
+      created_at:t, updated_at:t});
+  }
+  sauver(); fermerForm(); ouvrirOnglet(joursDiff(date)>0?'avenir':'jour');
+  toast('✓ Enregistré'); syncAuto();
+}
+
+function marquerVu(id){
+  const r=etat.records.find(x=>x.id===id); if(!r) return;
+  r.statut='vu'; r.vu_at=new Date().toISOString(); r.updated_at=r.vu_at;
+  sauver(); rendre(); toast('✓ '+r.nom+' marqué vu'); syncAuto();
+}
+function ouvrirPlus(id){ cibleId=id; document.getElementById('r_date').value='';
+  document.getElementById('voile').classList.add('ouvert'); }
+function fermerVoile(){ document.getElementById('voile').classList.remove('ouvert'); }
+function reporter(j){ const r=etat.records.find(x=>x.id===cibleId); if(!r) return;
+  const d=new Date(); d.setDate(d.getDate()+j);
+  r.date=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  r.updated_at=new Date().toISOString(); sauver(); fermerVoile(); rendre(); toast('Reporté au '+fmtFR(r.date)); syncAuto(); }
+function reporterDate(v){ if(!v) return; const r=etat.records.find(x=>x.id===cibleId); if(!r) return;
+  r.date=v; r.updated_at=new Date().toISOString(); sauver(); fermerVoile(); rendre(); toast('Reporté au '+fmtFR(v)); syncAuto(); }
+function annulerRdv(){ const r=etat.records.find(x=>x.id===cibleId); if(!r) return;
+  if(!confirm('Marquer « '+r.nom+' » comme annulé / perdu de vue ?')) return;
+  r.statut='annule'; r.vu_at=new Date().toISOString(); r.updated_at=r.vu_at;
+  sauver(); fermerVoile(); rendre(); toast('Annulé'); syncAuto(); }
+function reprogrammer(id){ const r=etat.records.find(x=>x.id===id); if(!r) return;
+  r.statut='attente'; r.vu_at=null; r.updated_at=new Date().toISOString();
+  cibleId=id; sauver(); document.getElementById('voile').classList.add('ouvert'); }
+function supprimer(id){ const r=etat.records.find(x=>x.id===id); if(!r) return;
+  if(!confirm('Supprimer définitivement la fiche de '+r.nom+' ?')) return;
+  r.deleted=1; r.updated_at=new Date().toISOString(); sauver(); rendre(); syncAuto(); }
+
+function telIntl(t){ let d=(t||'').replace(/\D/g,'');
+  if(d.startsWith('00')) d=d.slice(2);
+  if(d.length===10 && d.startsWith('0')) d='225'+d;
+  return d; }
+function relanceWA(id){ const r=etat.records.find(x=>x.id===id); if(!r) return;
+  const msg=`Bonjour ${r.nom}, rappel de votre rendez-vous de contrôle prévu le ${fmtFR(r.date)}${r.spec?' ('+r.spec+')':''}. Merci de passer nous voir. Dr Balet, 0767087494`;
+  window.open('https://wa.me/'+telIntl(r.tel)+'?text='+encodeURIComponent(msg),'_blank'); }
+function appeler(id){ const r=etat.records.find(x=>x.id===id); if(!r) return;
+  window.location.href='tel:'+(r.tel||''); }
+
+/* ================= EXPORT ================= */
+function exportCSV(){
+  const lignes=[['Nom','Téléphone','Type','Spécialité','Date prévue','Statut','Note','Ajouté par','Vu le']];
+  for(const r of etat.records.filter(x=>!x.deleted))
+    lignes.push([r.nom,r.tel,NOMTYPE[r.type]||r.type,r.spec,r.date,r.statut,r.note,r.created_by,(r.vu_at||'').slice(0,10)]);
+  const csv=lignes.map(l=>l.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+  telecharger('rdvmed_'+auj()+'.csv', '\ufeff'+csv, 'text/csv');
+}
+function exportJSON(){ telecharger('rdvmed_sauvegarde_'+auj()+'.json', JSON.stringify(etat.records,null,1), 'application/json'); }
+function telecharger(nom, contenu, type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([contenu],{type})); a.download=nom; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function restaurer(f){ if(!f) return; const l=new FileReader();
+  l.onload=()=>{ try{ const recs=JSON.parse(l.result);
+    if(!Array.isArray(recs)) throw 0;
+    for(const r of recs){ const loc=etat.records.find(x=>x.id===r.id);
+      if(!loc) etat.records.push(r);
+      else if((r.updated_at||'')>(loc.updated_at||'')) Object.assign(loc,r); }
+    sauver(); rendre(); toast('✓ Sauvegarde restaurée ('+recs.length+' fiches)');
+  }catch(e){ toast('Fichier invalide'); } };
+  l.readAsText(f);
+}
+
+/* ================= SYNC SUPABASE ================= */
+let syncEnCours=false, syncTimer=null;
+function syncAuto(){ if(!etat.supa.url||!etat.supa.key) return;
+  clearTimeout(syncTimer); syncTimer=setTimeout(()=>synchroniser(false), 1500); }
+
+async function synchroniser(manuel){
+  if(!etat.supa.url||!etat.supa.key){ if(manuel) toast('Renseignez l\u2019URL et la clé Supabase'); return; }
+  if(syncEnCours) return; syncEnCours=true;
+  const dot=document.getElementById('syncDot');
+  try{
+    const base=etat.supa.url.replace(/\/$/,'')+'/rest/v1/rdv';
+    const H={'apikey':etat.supa.key,'Authorization':'Bearer '+etat.supa.key,'Content-Type':'application/json'};
+    // 1. pousser tout le local (upsert par id)
+    const locaux=etat.records.map(r=>({id:r.id,nom:r.nom,tel:r.tel||'',type:r.type,spec:r.spec||'',
+      date:r.date,note:r.note||'',statut:r.statut,vu_at:r.vu_at,created_by:r.created_by||'',
+      deleted:r.deleted?1:0,created_at:r.created_at,updated_at:r.updated_at}));
+    if(locaux.length){
+      const rp=await fetch(base+'?on_conflict=id',{method:'POST',
+        headers:{...H,'Prefer':'resolution=merge-duplicates'}, body:JSON.stringify(locaux)});
+      if(!rp.ok) throw new Error('push '+rp.status);
+    }
+    // 2. tout récupérer et fusionner (le plus récent gagne)
+    const rg=await fetch(base+'?select=*',{headers:H});
+    if(!rg.ok) throw new Error('pull '+rg.status);
+    const dist=await rg.json();
+    for(const r of dist){
+      const loc=etat.records.find(x=>x.id===r.id);
+      if(!loc) etat.records.push(r);
+      else if((r.updated_at||'')>(loc.updated_at||'')) Object.assign(loc,r);
+    }
+    etat.lastPull=new Date().toISOString(); sauver(); rendre();
+    dot.className='on';
+    if(manuel) toast('✓ Synchronisé ('+dist.length+' fiches partagées)');
+  }catch(e){
+    dot.className='err';
+    if(manuel) toast('Échec de synchro : '+e.message);
+  }finally{ syncEnCours=false; }
+}
+
+/* ================= DIVERS ================= */
+let toastTimer=null;
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.style.display='block';
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.style.display='none',2600); }
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+rendre();
+if(etat.supa.url&&etat.supa.key) synchroniser(false);
+if(!etat.user){ setTimeout(()=>{ const n=prompt('Bienvenue dans RDVmed !\nVotre nom (affiché sur vos ajouts) :');
+  if(n){ etat.user=n.trim(); sauver(); rendre(); } }, 400); }
+</script>
+</body>
+</html>
