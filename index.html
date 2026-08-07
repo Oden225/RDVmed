@@ -537,7 +537,7 @@ function vueReglages(){
   '<input type="url" id="g_url" class="mono" value="'+ech(etat.supa.url)+'" placeholder="https://xxxx.supabase.co" onchange="etat.supa.url=this.value.trim();sauver()">'+
   '<div style="height:12px"></div><label class="lbl" for="g_key">Clé anon (publique)</label>'+
   '<input type="text" id="g_key" class="mono" value="'+ech(etat.supa.key)+'" placeholder="eyJ…" onchange="etat.supa.key=this.value.trim();sauver()">'+
-  '<div class="hint">Identique sur tous les postes du cabinet.</div><div style="height:16px"></div>'+
+  '<div class="hint">Identique sur tous les postes du cabinet. Permet aussi d\u2019alerter les autres postes à chaque nouveau rendez-vous.</div><div style="height:16px"></div>'+
   '<button class="btn secondary full" onclick="synchroniser(true)">'+ico('refresh-cw',18)+'Synchroniser maintenant</button>'+
   '<div class="hint" id="infoSync"><span class="sdot" id="syncDot"></span>'+
   (etat.lastPull?'Dernière synchronisation\u00A0: '+new Date(etat.lastPull).toLocaleString('fr-FR')
@@ -573,12 +573,16 @@ function enregistrer(){
   if(!nom){toast('Nom manquant','Renseignez le nom du patient.','danger');return;}
   if(!date){toast('Date manquante','Choisissez la date prévue.','danger');return;}
   const t=new Date().toISOString();
-  etat.records.push({id:uuid(),nom,tel:document.getElementById('f_tel').value.trim(),type,
+  const nouveau={id:uuid(),nom,tel:document.getElementById('f_tel').value.trim(),type,
     spec:document.getElementById('f_spec').value.trim(),date,
     note:document.getElementById('f_note').value.trim(),statut:'attente',vu_at:null,
-    created_by:etat.user||'',deleted:0,created_at:t,updated_at:t});
+    created_by:etat.user||'',deleted:0,created_at:t,updated_at:t};
+  etat.records.push(nouveau);
   sauver();fermerForm();ongletActif=ecart(date)>0?'avenir':'jour';rendre();
   toast('Suivi enregistré',nom+' · '+fmtLong(date));syncAuto();planifierRappels();
+  if(window.RDVmedPush&&etat.supa.url&&etat.supa.key){
+    RDVmedPush.notifierNouveau({supabaseUrl:etat.supa.url,supabaseAnonKey:etat.supa.key},nouveau);
+  }
 }
 
 /* ============ ACTIONS ============ */

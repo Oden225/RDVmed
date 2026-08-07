@@ -56,5 +56,27 @@
     return sub;
   }
 
-  window.RDVmedPush = { activer };
+  // Alerte tous les autres postes qu'un rendez-vous vient d'être créé.
+  async function notifierNouveau(cfg, rdv) {
+    cfg = cfg || {};
+    const url = cfg.supabaseUrl, key = cfg.supabaseAnonKey;
+    if (!url || !key || !rdv) return null;
+    const base = url.replace(/\/$/, '').replace('.supabase.co', '.functions.supabase.co');
+    try {
+      const r = await fetch(base + '/notify-new', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: key,
+          Authorization: 'Bearer ' + key,
+        },
+        body: JSON.stringify({ rdv: rdv }),
+      });
+      return await r.json();
+    } catch (e) {
+      return null; // hors ligne : le rappel quotidien prendra le relais
+    }
+  }
+
+  window.RDVmedPush = { activer, notifierNouveau };
 })();
