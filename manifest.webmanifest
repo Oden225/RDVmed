@@ -1,13 +1,19 @@
 {
-  "name": "RDVmed — Rendez-vous et contrôles",
+  "name": "RDVmed — Groupe médical Al Nouf",
   "short_name": "RDVmed",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#F7F5F0",
-  "theme_color": "#0E7A5F",
+  "description": "Suivi des rendez-vous et contrôles patients, partagé entre les postes du cabinet.",
   "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F9FB",
+  "theme_color": "#018846",
+  "categories": ["medical", "productivity"],
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
