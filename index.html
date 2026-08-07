@@ -279,7 +279,7 @@ nav button.tb .pip{position:absolute;top:4px;right:calc(50% - 22px);min-width:16
       <input type="text" id="f_nom" placeholder="ex. Aïcha Koné" autocomplete="off"></div>
     <div class="fld"><label class="lbl" for="f_tel">Téléphone</label>
       <input type="tel" id="f_tel" class="mono" placeholder="07 08 51 63 08" inputmode="tel">
-      <div class="hint">Nécessaire pour la relance WhatsApp.</div></div>
+      <div class="hint">Nécessaire pour la relance WhatsApp, SMS ou l'appel.</div></div>
     <div class="fld"><label class="lbl">Type de passage *</label>
       <div class="chips" id="f_type" style="display:flex;flex-wrap:wrap;gap:6px">
         <button class="tag" data-v="specialiste" onclick="selType(this)">RDV spécialiste</button>
@@ -328,6 +328,7 @@ const P={
  'x':'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
  'phone':'<path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/>',
  'message-circle':'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+ 'message-square':'<path d="M22 17a2 2 0 0 1-2 2H6l-4 4V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>',
  'more-horizontal':'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
  'search':'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
  'alert-triangle':'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
@@ -349,8 +350,9 @@ let etat=charger(), ongletActif='jour', editId=null, cibleId=null, jourSel=null;
 let filtreType='', rechA='', rechH='';
 function charger(){
   try{const d=JSON.parse(localStorage.getItem(CLE));
-    if(d&&d.records){if(d.leadDays==null)d.leadDays=3;return d;}}catch(e){}
-  return {records:[],user:'',supa:{url:'',key:''},lastPull:'',leadDays:3};
+    if(d&&d.records){if(d.leadDays==null)d.leadDays=3;
+      if(!d.cab)d.cab={nom:'Groupe médical Al Nouf',tel:'21 50 03 65 62'};return d;}}catch(e){}
+  return {records:[],user:'',supa:{url:'',key:''},lastPull:'',leadDays:3,cab:{nom:'Groupe médical Al Nouf',tel:'21 50 03 65 62'}};
 }
 function sauver(){localStorage.setItem(CLE,JSON.stringify(etat));}
 function uuid(){return crypto.randomUUID?crypto.randomUUID():'id-'+Date.now()+'-'+Math.random().toString(36).slice(2);}
@@ -404,6 +406,7 @@ function carte(r){
     '<div class="pacts">'+
       '<button class="btn primary sm" onclick="marquerVu(\''+r.id+'\')">'+ico('check',16)+'Vu</button>'+
       (r.tel?'<button class="ib sm outline" onclick="relanceWA(\''+r.id+'\')" aria-label="Relancer par WhatsApp">'+ico('message-circle',16)+'</button>'+
+             '<button class="ib sm outline" onclick="relanceSMS(\''+r.id+'\')" aria-label="Relancer par SMS">'+ico('message-square',16)+'</button>'+
              '<button class="ib sm outline" onclick="appeler(\''+r.id+'\')" aria-label="Appeler le patient">'+ico('phone',16)+'</button>':'')+
       '<button class="ib sm" onclick="ouvrirPlus(\''+r.id+'\')" aria-label="Reporter ou annuler">'+ico('more-horizontal',16)+'</button>'+
     '</div></div>';
@@ -508,6 +511,17 @@ function vueReglages(){
   '<div class="hint">Affiché sur les fiches que vous ajoutez.</div></div>'+
 
   '<div class="card md" style="margin-top:12px">'+
+  '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="display:inline-flex;color:var(--brand-primary)">'+ico('message-square',20)+
+  '</span><span style="font-size:var(--text-base);font-weight:600;color:var(--text-heading)">Identité du cabinet</span></div>'+
+  '<div style="font-size:var(--text-sm);line-height:1.5;margin-bottom:12px">Signature et numéro de rappel utilisés dans tous les messages, quel que soit le poste qui envoie.</div>'+
+  '<label class="lbl" for="g_cabnom">Nom affiché</label>'+
+  '<input type="text" id="g_cabnom" value="'+ech((etat.cab||{}).nom||'')+'" placeholder="Groupe médical Al Nouf" onchange="etat.cab.nom=this.value.trim();sauver();rendre()">'+
+  '<div style="height:12px"></div><label class="lbl" for="g_cabtel">Numéro de rappel unique</label>'+
+  '<input type="tel" id="g_cabtel" class="mono" value="'+ech((etat.cab||{}).tel||'')+'" placeholder="21 50 03 65 62" onchange="etat.cab.tel=this.value.trim();sauver();rendre()">'+
+  '<div class="hint">À saisir à l\u2019identique sur chaque poste. Le patient voit toujours ce numéro, même si le SMS part d\u2019un autre téléphone.</div>'+
+  '<div class="card sunken" style="padding:12px 14px;margin-top:14px"><div style="font-size:var(--text-2xs);color:var(--text-muted);line-height:1.6;white-space:pre-line">'+ech(msgRappel({nom:'Aya K.',date:iso(2),spec:'Cardiologie'}))+'</div></div></div>'+
+
+  '<div class="card md" style="margin-top:12px">'+
   '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="display:inline-flex;color:var(--brand-primary)">'+ico('bell',20)+
   '</span><span style="font-size:var(--text-base);font-weight:600;color:var(--text-heading)">Rappels</span></div>'+
   '<div style="font-size:var(--text-sm);line-height:1.5;margin-bottom:12px">Être alerté combien de temps avant un rendez-vous&nbsp;?</div>'+
@@ -538,7 +552,7 @@ function vueReglages(){
   '<button class="btn ghost full" onclick="document.getElementById(\'g_fic\').click()">'+ico('folder-open',18)+'Restaurer une sauvegarde</button>'+
   '<input type="file" id="g_fic" accept=".json" style="display:none" onchange="restaurer(this.files[0])"></div>'+
   '<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border-subtle);font-size:var(--text-2xs);color:var(--text-muted);line-height:1.6">'+
-  'Groupe médical Al Nouf — San Pedro, Bardot 2<br>Tél.&nbsp;: <span style="font-family:var(--font-mono)">21 50 03 65 62</span></div></div>';
+  ech((etat.cab||{}).nom||'Groupe médical Al Nouf')+' — San Pedro, Bardot 2<br>Tél.&nbsp;: <span style="font-family:var(--font-mono)">'+ech((etat.cab||{}).tel||'21 50 03 65 62')+'</span></div></div>';
 }
 
 /* ============ FORMULAIRE ============ */
@@ -601,9 +615,16 @@ function supprimer(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
 function telIntl(t){let d=(t||'').replace(/\D/g,'');if(d.startsWith('00'))d=d.slice(2);
   if(d.length===10&&d.startsWith('0'))d='225'+d;return d;}
 function relanceWA(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
-  const m='Bonjour '+r.nom+', rappel de votre rendez-vous prévu le '+fmtLong(r.date)+
-    (r.spec?' ('+r.spec+')':'')+'. Merci de passer nous voir. Dr Balet, 0767087494';
+  const m=msgRappel(r);
   window.open('https://wa.me/'+telIntl(r.tel)+'?text='+encodeURIComponent(m),'_blank');}
+function msgRappel(r){const c=etat.cab||{};
+  return 'Bonjour '+r.nom+', rappel de votre rendez-vous prévu le '+fmtLong(r.date)+
+    (r.spec?' ('+r.spec+')':'')+'. Merci de passer nous voir.\n'+
+    (c.nom||'Groupe médical Al Nouf')+'\nPour toute question, appelez uniquement le '+(c.tel||'21 50 03 65 62')+'.';}
+function relanceSMS(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
+  if(!r.tel){toast('Numéro manquant','Ajoutez un téléphone pour envoyer un SMS.','danger');return;}
+  const sep=/iPhone|iPad|Macintosh/i.test(navigator.userAgent)?'&':'?';
+  location.href='sms:'+telIntl(r.tel).replace(/^/,'+')+sep+'body='+encodeURIComponent(msgRappel(r));}
 function appeler(id){const r=etat.records.find(x=>x.id===id);if(r)location.href='tel:'+(r.tel||'');}
 
 /* ============ RAPPELS ============ */
@@ -620,6 +641,7 @@ function ouvrirRappels(){
       '<div class="nn">'+ech(r.nom)+'</div><div class="nq">'+(e===1?'Demain':'Dans '+e+'\u00A0jours')+
       ' · '+(NOMTYPE[r.type]||ech(r.type))+'</div></div>'+
       (r.tel?'<button class="ib sm outline" onclick="fermerVoile();relanceWA(\''+r.id+'\')" aria-label="Relancer par WhatsApp">'+ico('message-circle',16)+'</button>'+
+             '<button class="ib sm outline" onclick="fermerVoile();relanceSMS(\''+r.id+'\')" aria-label="Relancer par SMS">'+ico('message-square',16)+'</button>'+
              '<button class="ib sm outline" onclick="fermerVoile();appeler(\''+r.id+'\')" aria-label="Appeler">'+ico('phone',16)+'</button>':'')+
       '</div>';}
   document.getElementById('modale').innerHTML=h+'</div>';
