@@ -3,17 +3,25 @@
    « Activer les notifications » des Réglages.
 
    Pré-requis (voir README-notifications.md) :
-   - VAPID_PUBLIC_KEY : clé publique générée avec web-push
+   - VAPID_PUBLIC_KEY : clé publique générée avec web-push (la privée va
+     dans les secrets Supabase, jamais dans ce fichier)
    - SUPABASE_URL / SUPABASE_ANON_KEY : ceux déjà saisis dans les Réglages
 */
 (function () {
-  const VAPID_PUBLIC_KEY = 'BH1BpcTas1lqa5fSCaj_LUx0CH95hQIY6QKuzgx_BGmQylfbxkv14vziz8j-35pz4lfwDmhEGwFumX9yd2qPN2U';
+  const VAPID_PUBLIC_KEY = 'BDRStu99xft7KYklV9gPK-ITYt2TuCL92c0m6nXwZ4CI0yBhfumrwiHOXww61tvGtw1wpcHBeB20nTUKt_IL9eQ';
 
   function urlB64ToUint8(base64) {
     const pad = '='.repeat((4 - (base64.length % 4)) % 4);
     const b64 = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
     const raw = atob(b64);
     return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+  }
+
+  function memeCle(sub, cle) {
+    const k = sub.options && sub.options.applicationServerKey;
+    if (!k) return true; // navigateur qui ne l'expose pas : on garde l'abonnement
+    const a = new Uint8Array(k), b = urlB64ToUint8(cle);
+    return a.length === b.length && a.every((v, i) => v === b[i]);
   }
 
   async function activer(cfg) {
@@ -29,6 +37,11 @@
     await navigator.serviceWorker.ready;
 
     let sub = await reg.pushManager.getSubscription();
+    // Abonnement créé avec une ancienne clé VAPID : on le remplace.
+    if (sub && !memeCle(sub, VAPID_PUBLIC_KEY)) {
+      await sub.unsubscribe();
+      sub = null;
+    }
     if (!sub) {
       sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,

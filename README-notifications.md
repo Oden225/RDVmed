@@ -11,12 +11,13 @@ Supabase → **SQL Editor** → coller tout `supabase.sql` → **Run**.
 Le script peut être relancé : il ajoute la table `push_subscriptions` sans toucher aux rendez-vous.
 
 ## 2. Clés VAPID
-La clé **publique** est déjà dans `push-client.js` (`VAPID_PUBLIC_KEY`). Il faut la clé **privée** qui va avec.
-Si vous ne l'avez plus, générez une nouvelle paire et remplacez la clé publique dans `push-client.js` :
-```
-npx web-push generate-vapid-keys
-```
-(chaque téléphone devra ensuite réactiver les notifications.)
+La clé **publique** est dans `push-client.js` (`VAPID_PUBLIC_KEY`, renouvelée le 14/10/2026).
+La clé **privée** qui va avec ne doit **jamais** être mise dans le dépôt : elle va uniquement dans les secrets Supabase (étape 3).
+Conservez-la dans un gestionnaire de mots de passe.
+
+Si elle est perdue un jour : générer une nouvelle paire avec `npx web-push generate-vapid-keys`,
+remplacer la clé publique dans `push-client.js`, incrémenter `CACHE` dans `sw.js`, mettre la privée dans les secrets.
+Les téléphones déjà abonnés se réabonnent tout seuls à la prochaine pression sur « Activer les notifications ».
 
 ## 3. Déployer les fonctions
 Sur un ordinateur avec Node.js, dans le dossier du dépôt :
@@ -27,6 +28,8 @@ npx supabase secrets set VAPID_PUBLIC_KEY=... VAPID_PRIVATE_KEY=... VAPID_SUBJEC
 npx supabase functions deploy notify-new
 npx supabase functions deploy rappel-quotidien
 ```
+Sans terminal, les secrets se saisissent aussi dans Supabase → **Edge Functions → Secrets** (ou **Project Settings → Edge Functions**).
+
 Réglages facultatifs (même commande `secrets set`) :
 - `RAPPEL_JOURS=3` : le rappel du matin couvre les 3 prochains jours au lieu de demain seulement.
 - `RDVMED_TZ=Africa/Abidjan` : fuseau horaire du cabinet (valeur par défaut).

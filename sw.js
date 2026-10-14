@@ -2,7 +2,7 @@
    Cache hors-ligne + réception des notifications push (rappels de rendez-vous,
    envoyés par la fonction Supabase, même application fermée). */
 
-const CACHE = 'rdvmed-v4';
+const CACHE = 'rdvmed-v5';
 const CORE = [
   './', './index.html', './manifest.webmanifest',
   './push-client.js', './logo-mark.svg',
