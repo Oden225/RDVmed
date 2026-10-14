@@ -595,7 +595,7 @@ function vueCabinet(){
   champ('g_cabtel','tel','Numéro de rappel unique','tel','mono','21 50 03 65 62')+
   champ('g_cabadr','adresse','Adresse','text','','San Pedro, Bardot 2')+
   '<div class="hint" style="margin-top:-6px">'+(ed?'Partagé avec tous les postes du cabinet dès l\u2019enregistrement.'
-     :'Commun à tous les postes. Seul un médecin peut le modifier.')+'</div>';
+     :'Commun à tous les postes.')+'</div>';
 }
 async function changerCabinet(k,v){
   v=v.trim();if(k==='nom'&&!v){rendreSurPlace();return;}
