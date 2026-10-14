@@ -53,7 +53,7 @@ select cron.schedule(
 Pour l'arrêter : `select cron.unschedule('rdvmed-rappel-quotidien');`
 
 ## 5. Sur chaque téléphone
-RDVmed → **Réglages** → vérifier URL + clé Supabase et votre nom → **Activer les notifications** → Autoriser.
+Une fois connecté et validé : RDVmed → **Réglages** → **Activer les notifications** → Autoriser.
 
 ## Vérifier
 - Ajoutez un rendez-vous sur un téléphone : les autres reçoivent « Nouveau rendez-vous ».

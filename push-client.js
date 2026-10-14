@@ -5,7 +5,9 @@
    Pré-requis (voir README-notifications.md) :
    - VAPID_PUBLIC_KEY : clé publique générée avec web-push (la privée va
      dans les secrets Supabase, jamais dans ce fichier)
-   - SUPABASE_URL / SUPABASE_ANON_KEY : ceux déjà saisis dans les Réglages
+   - SUPABASE_URL / SUPABASE_ANON_KEY : ceux de config.js
+   - token / membreId : session du membre connecté (les règles Supabase
+     refusent les appels anonymes)
 */
 (function () {
   const VAPID_PUBLIC_KEY = 'BDRStu99xft7KYklV9gPK-ITYt2TuCL92c0m6nXwZ4CI0yBhfumrwiHOXww61tvGtw1wpcHBeB20nTUKt_IL9eQ';
@@ -27,6 +29,7 @@
   async function activer(cfg) {
     cfg = cfg || {};
     const url = cfg.supabaseUrl, key = cfg.supabaseAnonKey, user = cfg.utilisateur || 'inconnu';
+    const jeton = cfg.token || key;
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
       throw new Error('Push non supporté sur cet appareil/navigateur.');
     }
@@ -56,13 +59,14 @@
         headers: {
           'Content-Type': 'application/json',
           apikey: key,
-          Authorization: 'Bearer ' + key,
-          Prefer: 'resolution=merge-duplicates',
+          Authorization: 'Bearer ' + jeton,
+          Prefer: 'resolution=merge-duplicates,return=minimal',
         },
         body: JSON.stringify({
           endpoint: sub.endpoint,
           subscription: sub.toJSON(),
           utilisateur: user,
+          membre_id: cfg.membreId || null,
         }),
       });
       if (!r.ok) throw new Error('Enregistrement de l\u2019abonnement refusé (' + r.status + '). Table push_subscriptions créée ?');
@@ -75,13 +79,14 @@
     cfg = cfg || {};
     const url = cfg.supabaseUrl, key = cfg.supabaseAnonKey;
     if (!url || !key || !rdv) return null;
+    const jeton = cfg.token || key;
     try {
       const r = await fetch(url.replace(/\/$/, '') + '/functions/v1/notify-new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           apikey: key,
-          Authorization: 'Bearer ' + key,
+          Authorization: 'Bearer ' + jeton,
         },
         body: JSON.stringify({ rdv: rdv }),
       });
@@ -91,5 +96,16 @@
     }
   }
 
-  window.RDVmedPush = { activer, notifierNouveau };
+  // À la déconnexion : ce téléphone ne doit plus recevoir de noms de patients.
+  // L'abonnement résilié est purgé côté serveur au prochain envoi (410).
+  async function desactiver() {
+    try {
+      if (!('serviceWorker' in navigator)) return;
+      const reg = await navigator.serviceWorker.getRegistration();
+      const sub = reg && await reg.pushManager.getSubscription();
+      if (sub) await sub.unsubscribe();
+    } catch (e) { /* rien à faire */ }
+  }
+
+  window.RDVmedPush = { activer, notifierNouveau, desactiver };
 })();

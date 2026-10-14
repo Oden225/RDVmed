@@ -31,7 +31,7 @@ export function base() {
 
 export type Message = { title: string; body: string; tag?: string; id?: string | null; url?: string };
 
-/* Envoie le message à chaque abonnement, sauf ceux de `sauf` (nom d'utilisateur).
+/* Envoie le message à chaque abonnement, sauf ceux du membre `sauf` (son id).
    Les abonnements expirés (404/410) sont supprimés au passage. */
 export async function envoyerATous(msg: Message, sauf = "") {
   webpush.setVapidDetails(
@@ -40,14 +40,14 @@ export async function envoyerATous(msg: Message, sauf = "") {
     env("VAPID_PRIVATE_KEY"),
   );
   const db = base();
-  const { data: subs, error } = await db.from("push_subscriptions").select("endpoint, subscription, utilisateur");
+  const { data: subs, error } = await db.from("push_subscriptions").select("endpoint, subscription, utilisateur, membre_id");
   if (error) throw error;
 
   const payload = JSON.stringify({ url: "./", ...msg });
   let envoyes = 0, echecs = 0;
   const expires: string[] = [];
   await Promise.all((subs || []).map(async (s) => {
-    if (sauf && s.utilisateur === sauf) return;
+    if (sauf && s.membre_id === sauf) return;
     try {
       await webpush.sendNotification(s.subscription, payload, { TTL: 60 * 60 * 12 });
       envoyes++;
@@ -62,6 +62,17 @@ export async function envoyerATous(msg: Message, sauf = "") {
   }));
   if (expires.length) await db.from("push_subscriptions").delete().in("endpoint", expires);
   return { envoyes, echecs, supprimes: expires.length };
+}
+
+/* Membre validé à l'origine de l'appel (jeton de session de l'application), ou null. */
+export async function membreAppelant(req: Request) {
+  const jeton = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+  if (!jeton) return null;
+  const db = base();
+  const { data } = await db.auth.getUser(jeton);
+  if (!data?.user) return null;
+  const { data: m } = await db.from("membres").select("id, nom, valide").eq("id", data.user.id).maybeSingle();
+  return m?.valide ? m as { id: string; nom: string } : null;
 }
 
 export const NOMTYPE: Record<string, string> = {
