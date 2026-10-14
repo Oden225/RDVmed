@@ -240,6 +240,23 @@ nav button.tb .pip{position:absolute;top:4px;right:calc(50% - 22px);min-width:16
 #toast .td{font-size:var(--text-2xs);color:var(--text-muted);margin-top:2px;line-height:1.5}
 .sdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--grey-300);margin-right:6px}
 .sdot.on{background:var(--green-600)} .sdot.err{background:var(--danger-600)}
+/* ===== Accueil / connexion ===== */
+#accueil{position:fixed;inset:0;z-index:75;background:var(--surface-page);display:none;overflow-y:auto;
+  padding:calc(24px + env(safe-area-inset-top,0)) 16px calc(24px + env(safe-area-inset-bottom,0))}
+#accueil.ouvert{display:block;animation:fadeIn var(--dur-base) both}
+#accueil .boite{max-width:400px;margin:0 auto}
+#accueil .logo{display:flex;flex-direction:column;align-items:center;text-align:center;margin:12px 0 22px}
+#accueil .logo img{height:56px;width:auto;margin-bottom:12px}
+#accueil .titre{font-family:var(--font-display);font-weight:600;text-transform:uppercase;font-size:var(--text-2xl);
+  letter-spacing:.01em;color:var(--text-heading);line-height:1.1}
+#accueil .st{font-size:var(--text-2xs);letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-top:4px}
+#accueil .q{font-size:var(--text-lg);font-weight:600;color:var(--text-heading);margin-bottom:6px}
+#accueil .exp{font-size:var(--text-sm);line-height:1.5;margin-bottom:16px}
+#accueil .lien{background:none;border:none;font-family:inherit;font-size:var(--text-sm);color:var(--blue-600);
+  cursor:pointer;padding:8px 0}
+#a_code{font-family:var(--font-mono);font-size:var(--text-2xl);letter-spacing:.3em;text-align:center;height:56px}
+.postes{display:flex;flex-wrap:wrap;gap:6px}
+.btn[disabled]{opacity:.55;pointer-events:none}
 @media (prefers-reduced-motion:reduce){
   main>section,.stk>*,.feuille.ouverte,.modale,#toast{animation:fadeIn var(--dur-fast) both}
 }
@@ -311,9 +328,11 @@ nav button.tb .pip{position:absolute;top:4px;right:calc(50% - 22px);min-width:16
   </div>
 </div>
 
+<div id="accueil" role="dialog" aria-modal="true" aria-label="Connexion à RDVmed"><div class="boite" id="accueilCorps"></div></div>
 <div id="voile" onclick="if(event.target===this)fermerVoile()"><div class="modale" id="modale"></div></div>
 <div id="toast"></div>
 
+<script src="config.js"></script>
 <script src="push-client.js"></script>
 <script>
 /* ============ ICÔNES (Lucide, tracé inline — fonctionne hors-ligne) ============ */
@@ -339,6 +358,9 @@ const P={
  'folder-open':'<path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/>',
  'refresh-cw':'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
  'user-round':'<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+ 'log-out':'<path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>',
+ 'mail':'<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+ 'users':'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
  'user-x':'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5"/><path d="m22 8-5 5"/>',
  'bell-ring':'<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M22 8c0-2.3-.8-4.3-2-6"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/>'
 };
@@ -346,14 +368,19 @@ function ico(n,s){s=s||20;return '<svg width="'+s+'" height="'+s+'" viewBox="0 0
 
 /* ============ ÉTAT ============ */
 const CLE='rdvmed_data';
+const CAB_DEFAUT={nom:'Groupe médical Al Nouf',tel:'21 50 03 65 62',adresse:'San Pedro, Bardot 2'};
 let etat=charger(), ongletActif='jour', editId=null, cibleId=null, jourSel=null;
 let filtreType='', rechA='', rechH='';
 function charger(){
   try{const d=JSON.parse(localStorage.getItem(CLE));
     if(d&&d.records){if(d.leadDays==null)d.leadDays=3;
-      if(!d.cab)d.cab={nom:'Groupe médical Al Nouf',tel:'21 50 03 65 62'};return d;}}catch(e){}
-  return {records:[],user:'',supa:{url:'',key:''},lastPull:'',leadDays:3,cab:{nom:'Groupe médical Al Nouf',tel:'21 50 03 65 62'}};
+      d.cab=Object.assign({},CAB_DEFAUT,d.cab||{});return d;}}catch(e){}
+  return {records:[],user:'',supa:{url:'',key:''},lastPull:'',lastPush:'',leadDays:3,auth:null,membre:null,
+    cab:Object.assign({},CAB_DEFAUT)};
 }
+const POSTES={medecin:'Médecin',secretaire:'Secrétaire',gerant:'Gérant'};
+function pret(){return !!(etat.supa.url&&etat.supa.key&&etat.auth&&etat.membre&&etat.membre.valide);}
+function estMedecin(){return pret()&&etat.membre.poste==='medecin';}
 function sauver(){localStorage.setItem(CLE,JSON.stringify(etat));}
 function uuid(){return crypto.randomUUID?crypto.randomUUID():'id-'+Date.now()+'-'+Math.random().toString(36).slice(2);}
 function iso(off){const d=new Date();d.setDate(d.getDate()+(off||0));
@@ -372,6 +399,7 @@ function imminents(){const l=+etat.leadDays||3;
 
 /* ============ RENDU ============ */
 function rendre(){
+  document.querySelector('.lock .sous').textContent=etat.cab.nom;
   document.getElementById('btnCloche').innerHTML=ico('bell',20)+
     (imminents().length?'<span class="pip">'+imminents().length+'</span>':'');
   document.querySelector('.hdr-actions .ib:last-child').innerHTML=ico('user-round',20);
@@ -379,7 +407,7 @@ function rendre(){
   document.querySelector('#feuilleForm .fh .ib').innerHTML=ico('x',20);
   const nR=retards().length;
   const tb=[['jour','calendar-check',"Aujourd'hui",nR],['avenir','calendar-days','À venir',0],
-            ['histo','history','Historique',0],['reglages','settings-2','Réglages',0]];
+            ['histo','history','Historique',0],['reglages','settings-2','Réglages',enAttente().length]];
   tb.forEach(([k,i,l,n])=>{const b=document.getElementById('nav-'+k);
     b.className='tb'+(ongletActif===k?' actif':'');
     b.innerHTML=ico(i,22)+'<span>'+l+'</span>'+(n?'<span class="pip">'+n+'</span>':'');});
@@ -388,7 +416,8 @@ function rendre(){
     ongletActif==='histo'?vueHisto():vueReglages())+'</section>';
   v.scrollTop=0;
 }
-function ouvrirOnglet(o){ongletActif=o;jourSel=null;rendre();}
+function ouvrirOnglet(o){ongletActif=o;jourSel=null;rendre();if(o==='reglages'&&estMedecin())chargerEquipe();}
+function rendreSurPlace(){const v=document.getElementById('vue'),y=v.scrollTop;rendre();v.scrollTop=y;}
 
 function badge(r){const e=ecart(r.date);
   if(e<0)return '<span class="badge danger">'+ico('alert-triangle',14)+'Retard de '+(-e)+'\u00A0j</span>';
@@ -492,7 +521,7 @@ function vueHisto(){
       '<div class="ptags"><span class="badge neutral">'+(NOMTYPE[r.type]||ech(r.type))+'</span>'+
       (r.spec?'<span class="badge neutral">'+ech(r.spec)+'</span>':'')+'</div>'+
       '<div class="pacts"><button class="btn outline sm" onclick="reprogrammer(\''+r.id+'\')">'+ico('rotate-ccw',16)+'Reprogrammer</button>'+
-      '<button class="ib sm" onclick="supprimer(\''+r.id+'\')" aria-label="Supprimer la fiche">'+ico('trash-2',16)+'</button></div></div>';
+      (estMedecin()?'<button class="ib sm" onclick="supprimer(\''+r.id+'\')" aria-label="Supprimer la fiche">'+ico('trash-2',16)+'</button>':'')+'</div></div>';
   }
   return h+'</div>';
 }
@@ -504,22 +533,23 @@ function vueReglages(){
   else if(p==='denied')bn='<div class="card sunken" style="padding:12px 14px"><div style="font-size:var(--text-sm);color:var(--danger-600);line-height:1.5">Notifications bloquées. Autorisez-les dans les réglages du navigateur, puis rechargez.</div></div>';
   else if(p==='unsupported')bn='<div class="card sunken" style="padding:12px 14px"><div style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.5">Notifications indisponibles ici. Ajoutez l\u2019application à l\u2019écran d\u2019accueil pour en profiter.</div></div>';
   else bn='<button class="btn primary full" onclick="activerNotif()">'+ico('bell',18)+'Activer les notifications</button>';
-  return '<div class="eyebrow">Réglages</div><div class="h1">Poste et synchronisation</div>'+
+  const m=etat.membre||{}, a=etat.auth||{user:{}};
+  return '<div class="eyebrow">Réglages</div><div class="h1">Compte, équipe et synchronisation</div>'+
 
-  '<div class="card md" style="margin-top:16px"><label class="lbl" for="g_user">Votre nom</label>'+
-  '<input type="text" id="g_user" value="'+ech(etat.user)+'" placeholder="ex. Secrétariat Bardot 2" onchange="etat.user=this.value.trim();sauver();rendre()">'+
-  '<div class="hint">Affiché sur les fiches que vous ajoutez.</div></div>'+
+  '<div class="card md" style="margin-top:16px">'+
+  '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px">'+
+  '<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-flex;color:var(--brand-primary)">'+ico('user-round',20)+
+  '</span><span style="font-size:var(--text-base);font-weight:600;color:var(--text-heading)">Mon compte</span></div>'+
+  (m.poste?'<span class="badge success">'+ech(POSTES[m.poste]||m.poste)+'</span>':'')+'</div>'+
+  '<label class="lbl" for="g_user">Votre nom</label>'+
+  '<input type="text" id="g_user" value="'+ech(m.nom||etat.user)+'" maxlength="60" onchange="changerNom(this.value)">'+
+  '<div class="hint">Affiché sur les fiches que vous ajoutez. Le poste est attribué par le médecin.</div>'+
+  '<div class="pdate" style="margin-top:12px">'+ech(a.user.email||'')+'</div>'+
+  '<button class="btn ghost full" style="margin-top:10px;color:var(--danger-600)" onclick="deconnecter()">'+ico('log-out',18)+'Se déconnecter</button></div>'+
 
-  '<div class="card md" style="margin-top:12px">'+
-  '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="display:inline-flex;color:var(--brand-primary)">'+ico('message-square',20)+
-  '</span><span style="font-size:var(--text-base);font-weight:600;color:var(--text-heading)">Identité du cabinet</span></div>'+
-  '<div style="font-size:var(--text-sm);line-height:1.5;margin-bottom:12px">Signature et numéro de rappel utilisés dans tous les messages, quel que soit le poste qui envoie.</div>'+
-  '<label class="lbl" for="g_cabnom">Nom affiché</label>'+
-  '<input type="text" id="g_cabnom" value="'+ech((etat.cab||{}).nom||'')+'" placeholder="Groupe médical Al Nouf" onchange="etat.cab.nom=this.value.trim();sauver();rendre()">'+
-  '<div style="height:12px"></div><label class="lbl" for="g_cabtel">Numéro de rappel unique</label>'+
-  '<input type="tel" id="g_cabtel" class="mono" value="'+ech((etat.cab||{}).tel||'')+'" placeholder="21 50 03 65 62" onchange="etat.cab.tel=this.value.trim();sauver();rendre()">'+
-  '<div class="hint">À saisir à l\u2019identique sur chaque poste. Le patient voit toujours ce numéro, même si le SMS part d\u2019un autre téléphone.</div>'+
-  '<div class="card sunken" style="padding:12px 14px;margin-top:14px"><div style="font-size:var(--text-2xs);color:var(--text-muted);line-height:1.6;white-space:pre-line">'+ech(msgRappel({nom:'Aya K.',date:iso(2),spec:'Cardiologie'}))+'</div></div></div>'+
+  (estMedecin()?vueEquipe():'')+
+
+  vueCabinet()+'<div class="card sunken" style="padding:12px 14px;margin-top:14px"><div style="font-size:var(--text-2xs);color:var(--text-muted);line-height:1.6;white-space:pre-line">'+ech(msgRappel({nom:'Aya K.',date:iso(2),spec:'Cardiologie'}))+'</div></div></div>'+
 
   '<div class="card md" style="margin-top:12px">'+
   '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="display:inline-flex;color:var(--brand-primary)">'+ico('bell',20)+
@@ -533,15 +563,11 @@ function vueReglages(){
   '<div class="card md" style="margin-top:12px">'+
   '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span style="display:inline-flex;color:var(--brand-secondary)">'+ico('refresh-cw',20)+
   '</span><span style="font-size:var(--text-base);font-weight:600;color:var(--text-heading)">Synchronisation</span></div>'+
-  '<label class="lbl" for="g_url">URL du projet</label>'+
-  '<input type="url" id="g_url" class="mono" value="'+ech(etat.supa.url)+'" placeholder="https://xxxx.supabase.co" onchange="etat.supa.url=this.value.trim();sauver()">'+
-  '<div style="height:12px"></div><label class="lbl" for="g_key">Clé anon (publique)</label>'+
-  '<input type="text" id="g_key" class="mono" value="'+ech(etat.supa.key)+'" placeholder="eyJ…" onchange="etat.supa.key=this.value.trim();sauver()">'+
-  '<div class="hint">Identique sur tous les postes du cabinet. Permet aussi d\u2019alerter les autres postes à chaque nouveau rendez-vous.</div><div style="height:16px"></div>'+
+  '<div class="pdate" style="margin-bottom:14px">'+ech(etat.supa.url.replace(/^https?:\/\//,''))+'</div>'+
   '<button class="btn secondary full" onclick="synchroniser(true)">'+ico('refresh-cw',18)+'Synchroniser maintenant</button>'+
   '<div class="hint" id="infoSync"><span class="sdot" id="syncDot"></span>'+
   (etat.lastPull?'Dernière synchronisation\u00A0: '+new Date(etat.lastPull).toLocaleString('fr-FR')
-               :'Jamais synchronisé. L\u2019application fonctionne en local sur cet appareil.')+'</div></div>'+
+               :'Pas encore synchronisé.')+'</div></div>'+
 
   '<div class="card md" style="margin-top:12px">'+
   '<div style="font-size:var(--text-base);font-weight:600;color:var(--text-heading);margin-bottom:4px">Données</div>'+
@@ -552,7 +578,36 @@ function vueReglages(){
   '<button class="btn ghost full" onclick="document.getElementById(\'g_fic\').click()">'+ico('folder-open',18)+'Restaurer une sauvegarde</button>'+
   '<input type="file" id="g_fic" accept=".json" style="display:none" onchange="restaurer(this.files[0])"></div>'+
   '<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border-subtle);font-size:var(--text-2xs);color:var(--text-muted);line-height:1.6">'+
-  ech((etat.cab||{}).nom||'Groupe médical Al Nouf')+' — San Pedro, Bardot 2<br>Tél.&nbsp;: <span style="font-family:var(--font-mono)">'+ech((etat.cab||{}).tel||'21 50 03 65 62')+'</span></div></div>';
+  ech(etat.cab.nom)+(etat.cab.adresse?' — '+ech(etat.cab.adresse):'')+'<br>Tél.&nbsp;: <span style="font-family:var(--font-mono)">'+ech(etat.cab.tel)+'</span></div></div>';
+}
+/* Identité du cabinet : partagée via Supabase, modifiable par le médecin, en lecture seule ailleurs. */
+function vueCabinet(){
+  const c=etat.cab, ed=estMedecin();
+  const champ=(id,k,lbl,type,cls,ph)=>'<label class="lbl" for="'+id+'">'+lbl+'</label>'+
+    (ed?'<input type="'+type+'" id="'+id+'"'+(cls?' class="'+cls+'"':'')+' value="'+ech(c[k])+'" placeholder="'+ph+'" onchange="changerCabinet(\''+k+'\',this.value)">'
+       :'<div class="'+(cls||'')+'" style="font-size:var(--text-base);color:var(--text-heading);padding:2px 0 0">'+(ech(c[k])||'—')+'</div>')+
+    '<div style="height:12px"></div>';
+  return '<div class="card md" style="margin-top:12px">'+
+  '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="display:inline-flex;color:var(--brand-primary)">'+ico('message-square',20)+
+  '</span><span style="font-size:var(--text-base);font-weight:600;color:var(--text-heading)">Identité du cabinet</span></div>'+
+  '<div style="font-size:var(--text-sm);line-height:1.5;margin-bottom:12px">Signature et numéro de rappel utilisés dans tous les messages, quel que soit le poste qui envoie.</div>'+
+  champ('g_cabnom','nom','Nom affiché','text','','Groupe médical Al Nouf')+
+  champ('g_cabtel','tel','Numéro de rappel unique','tel','mono','21 50 03 65 62')+
+  champ('g_cabadr','adresse','Adresse','text','','San Pedro, Bardot 2')+
+  '<div class="hint" style="margin-top:-6px">'+(ed?'Partagé avec tous les postes du cabinet dès l\u2019enregistrement.'
+     :'Commun à tous les postes.')+'</div>';
+}
+async function changerCabinet(k,v){
+  v=v.trim();if(k==='nom'&&!v){rendreSurPlace();return;}
+  const avant=etat.cab[k];etat.cab[k]=v;sauver();rendreSurPlace();
+  try{await api('cabinet?id=eq.1',{method:'PATCH',headers:{'Prefer':'return=minimal'},
+      body:JSON.stringify({[k]:v,updated_at:new Date().toISOString()})});
+    toast('Identité du cabinet mise à jour','Visible sur tous les postes.');}
+  catch(e){etat.cab[k]=avant;sauver();rendreSurPlace();toast('Modification impossible',e.message,'danger');}
+}
+async function chargerCabinet(){
+  try{const l=await api('cabinet?id=eq.1&select=nom,tel,adresse');
+    if(l&&l[0]){etat.cab=Object.assign({},CAB_DEFAUT,l[0]);sauver();}}catch(e){}
 }
 
 /* ============ FORMULAIRE ============ */
@@ -580,9 +635,11 @@ function enregistrer(){
   etat.records.push(nouveau);
   sauver();fermerForm();ongletActif=ecart(date)>0?'avenir':'jour';rendre();
   toast('Suivi enregistré',nom+' · '+fmtLong(date));syncAuto();planifierRappels();
-  if(window.RDVmedPush&&etat.supa.url&&etat.supa.key){
-    RDVmedPush.notifierNouveau({supabaseUrl:etat.supa.url,supabaseAnonKey:etat.supa.key},nouveau);
-  }
+  notifierAutres(nouveau);
+}
+async function notifierAutres(r){
+  if(!window.RDVmedPush||!pret())return;
+  try{RDVmedPush.notifierNouveau({supabaseUrl:etat.supa.url,supabaseAnonKey:etat.supa.key,token:await jeton()},r);}catch(e){}
 }
 
 /* ============ ACTIONS ============ */
@@ -614,6 +671,7 @@ function reprogrammer(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
   r.statut='attente';r.vu_at=null;r.date=iso(7);r.updated_at=new Date().toISOString();
   sauver();ongletActif='avenir';rendre();toast('Suivi reprogrammé',r.nom+' · '+fmtLong(r.date));syncAuto();}
 function supprimer(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
+  if(!estMedecin()){toast('Réservé au médecin','Seul un médecin peut supprimer une fiche.','warning');return;}
   if(!confirm('Supprimer définitivement la fiche de '+r.nom+' ?'))return;
   r.deleted=1;r.updated_at=new Date().toISOString();sauver();rendre();toast('Fiche supprimée','','warning');syncAuto();}
 function telIntl(t){let d=(t||'').replace(/\D/g,'');if(d.startsWith('00'))d=d.slice(2);
@@ -621,7 +679,7 @@ function telIntl(t){let d=(t||'').replace(/\D/g,'');if(d.startsWith('00'))d=d.sl
 function relanceWA(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
   const m=msgRappel(r);
   window.open('https://wa.me/'+telIntl(r.tel)+'?text='+encodeURIComponent(m),'_blank');}
-function msgRappel(r){const c=etat.cab||{};
+function msgRappel(r){const c=etat.cab;
   return 'Bonjour '+r.nom+', rappel de votre rendez-vous prévu le '+fmtLong(r.date)+
     (r.spec?' ('+r.spec+')':'')+'. Merci de passer nous voir.\n'+
     (c.nom||'Groupe médical Al Nouf')+'\nPour toute question, appelez uniquement le '+(c.tel||'21 50 03 65 62')+'.';}
@@ -654,8 +712,9 @@ function ouvrirRappels(){
 async function activerNotif(){
   if(etatNotif()==='unsupported'){toast('Non disponible','Les notifications ne fonctionnent pas ici.','warning');return;}
   try{
-    if(window.RDVmedPush&&etat.supa.url&&etat.supa.key){
-      await RDVmedPush.activer({supabaseUrl:etat.supa.url,supabaseAnonKey:etat.supa.key,utilisateur:etat.user||'inconnu'});
+    if(window.RDVmedPush&&pret()){
+      await RDVmedPush.activer({supabaseUrl:etat.supa.url,supabaseAnonKey:etat.supa.key,token:await jeton(),
+        membreId:etat.auth.user.id,utilisateur:etat.membre.nom});
     }else{
       const p=await Notification.requestPermission();
       if(p!=='granted'){toast('Autorisation refusée','Réactivez les notifications dans le navigateur.','danger');rendre();return;}
@@ -700,42 +759,248 @@ function restaurer(f){if(!f)return;const l=new FileReader();
     for(const r of recs){const loc=etat.records.find(x=>x.id===r.id);
       if(!loc)etat.records.push(r);
       else if((r.updated_at||'')>(loc.updated_at||''))Object.assign(loc,r);}
-    sauver();rendre();toast('Sauvegarde restaurée',recs.length+' fiches importées.');
+    etat.lastPush='';sauver();rendre();syncAuto();toast('Sauvegarde restaurée',recs.length+' fiches importées.');
   }catch(e){toast('Fichier invalide','Choisissez une sauvegarde JSON.','danger');}};
   l.readAsText(f);}
 
 /* ============ SYNCHRO SUPABASE ============ */
 let syncEnCours=false,syncTimer=null;
-function syncAuto(){if(!etat.supa.url||!etat.supa.key)return;
+function syncAuto(){if(!pret())return;
   clearTimeout(syncTimer);syncTimer=setTimeout(()=>synchroniser(false),1500);}
+const CHAMPS=['id','nom','tel','type','spec','date','note','statut','vu_at','created_by','deleted','created_at','updated_at'];
 async function synchroniser(manuel){
-  if(!etat.supa.url||!etat.supa.key){if(manuel)toast('Configuration incomplète','Renseignez l\u2019URL et la clé Supabase.','warning');return;}
+  if(!pret()){if(manuel)toast('Connexion requise','Connectez-vous pour partager les fiches.','warning');return;}
   if(syncEnCours)return;syncEnCours=true;
   const dot=document.getElementById('syncDot');
   try{
-    const base=etat.supa.url.replace(/\/$/,'')+'/rest/v1/rdv';
-    const H={'apikey':etat.supa.key,'Authorization':'Bearer '+etat.supa.key,'Content-Type':'application/json'};
-    const locaux=etat.records.map(r=>({id:r.id,nom:r.nom,tel:r.tel||'',type:r.type,spec:r.spec||'',
-      date:r.date,note:r.note||'',statut:r.statut,vu_at:r.vu_at,created_by:r.created_by||'',
-      deleted:r.deleted?1:0,created_at:r.created_at,updated_at:r.updated_at}));
-    if(locaux.length){
-      const rp=await fetch(base+'?on_conflict=id',{method:'POST',
-        headers:Object.assign({},H,{'Prefer':'resolution=merge-duplicates'}),body:JSON.stringify(locaux)});
-      if(!rp.ok)throw new Error('envoi '+rp.status);
-    }
-    const rg=await fetch(base+'?select=*',{headers:H});
-    if(!rg.ok)throw new Error('lecture '+rg.status);
-    const dist=await rg.json();
+    // 1. Envoyer seulement ce qui a changé ici depuis le dernier envoi.
+    const debut=new Date().toISOString();
+    const aEnvoyer=etat.records.filter(r=>!etat.lastPush||(r.updated_at||'')>etat.lastPush)
+      .map(r=>{const o={};CHAMPS.forEach(k=>o[k]=r[k]==null?(k==='vu_at'?null:''):r[k]);o.deleted=r.deleted?1:0;return o;});
+    if(aEnvoyer.length)await api('rdv?on_conflict=id',{method:'POST',
+      headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(aEnvoyer)});
+    etat.lastPush=debut;
+    // 2. Récupérer la version partagée ; la plus récente gagne.
+    const dist=await api('rdv?select=*');
+    await chargerCabinet();
     for(const r of dist){const loc=etat.records.find(x=>x.id===r.id);
       if(!loc)etat.records.push(r);
       else if((r.updated_at||'')>(loc.updated_at||''))Object.assign(loc,r);}
-    etat.lastPull=new Date().toISOString();sauver();rendre();
-    if(dot)dot.className='sdot on';
+    etat.lastPull=new Date().toISOString();sauver();
+    if(!document.getElementById('feuilleForm').classList.contains('ouverte'))rendreSurPlace();
+    const d2=document.getElementById('syncDot');if(d2)d2.className='sdot on';
     if(manuel)toast('Synchronisation terminée',dist.length+' fiches partagées.');
   }catch(e){
     if(dot)dot.className='sdot err';
     if(manuel)toast('Échec de la synchronisation',e.message,'danger');
   }finally{syncEnCours=false;}
+}
+
+/* ============ CONNEXION (Supabase Auth, code par e-mail) ============ */
+function base(){return etat.supa.url.replace(/\/$/,'');}
+async function appelAuth(chemin,corps){
+  const r=await fetch(base()+'/auth/v1/'+chemin,{method:'POST',
+    headers:{'apikey':etat.supa.key,'Content-Type':'application/json'},body:JSON.stringify(corps)});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(d.msg||d.error_description||d.message||('Erreur '+r.status));e.status=r.status;throw e;}
+  return d;
+}
+function garderSession(d){
+  etat.auth={access_token:d.access_token,refresh_token:d.refresh_token,
+    expires_at:Math.floor(Date.now()/1000)+(d.expires_in||3600),user:{id:d.user.id,email:d.user.email}};
+  sauver();
+}
+let _rafraichir=null;
+/* Jeton d'accès valide (renouvelé au besoin) : la session ne se perd pas tant qu'on ne se déconnecte pas. */
+async function jeton(){
+  const a=etat.auth;if(!a)throw new Error('Non connecté');
+  if(a.expires_at-60>Date.now()/1000)return a.access_token;
+  if(!_rafraichir)_rafraichir=appelAuth('token?grant_type=refresh_token',{refresh_token:a.refresh_token})
+    .then(d=>{garderSession(d);return d.access_token;})
+    .catch(e=>{if(e.status>=400&&e.status<500)sessionPerdue();throw e;})
+    .finally(()=>{_rafraichir=null;});
+  return _rafraichir;
+}
+async function api(chemin,opts,deja){
+  opts=opts||{};
+  const r=await fetch(base()+'/rest/v1/'+chemin,Object.assign({},opts,{headers:Object.assign({
+    'apikey':etat.supa.key,'Authorization':'Bearer '+await jeton(),'Content-Type':'application/json'},opts.headers||{})}));
+  if(r.status===401){
+    // Jeton refusé (horloge du téléphone décalée…) : on le renouvelle une fois avant d'abandonner.
+    if(!deja&&etat.auth){etat.auth.expires_at=0;return api(chemin,opts,true);}
+    sessionPerdue();throw new Error('Session expirée, reconnectez-vous.');}
+  if(!r.ok){const d=await r.json().catch(()=>({}));const e=new Error(d.message||('Erreur '+r.status));e.status=r.status;throw e;}
+  const t=await r.text();return t?JSON.parse(t):null;
+}
+function sessionPerdue(){etat.auth=null;sauver();etape='email';montrerAccueil();}
+
+/* Écran d'accueil : config → e-mail → code → profil → attente de validation */
+let etape='', aEmail='', aPoste='secretaire', occupe=false, aMsg='';
+const configFixe=(()=>{const c=window.RDVMED_CONFIG||{};return !!(c.supabaseUrl&&c.supabaseAnonKey);})();
+function appliquerConfig(){
+  const c=window.RDVMED_CONFIG||{};if(!configFixe)return;
+  if(etat.supa.url&&etat.supa.url!==c.supabaseUrl){etat.auth=null;etat.membre=null;etat.records=[];etat.lastPush='';}
+  etat.supa={url:c.supabaseUrl,key:c.supabaseAnonKey};sauver();
+}
+function montrerAccueil(){rendreAccueil();document.getElementById('accueil').classList.add('ouvert');}
+function cacherAccueil(){document.getElementById('accueil').classList.remove('ouvert');}
+function rendreAccueil(){
+  const B=(txt,fn,cls)=>'<button class="btn '+(cls||'primary')+' lg full" '+(occupe?'disabled ':'')+'onclick="'+fn+'">'+txt+'</button>';
+  let h='<div class="logo"><img src="logo-mark.svg" alt="" onerror="this.src=\'icon-192.png\'">'+
+    '<div class="titre">RDVmed</div><div class="st">'+ech(etat.cab.nom)+'</div></div><div class="card md">';
+  if(etape==='config'){
+    h+='<div class="q">Configuration du cabinet</div><div class="exp">Une seule fois par appareil. Ces informations se trouvent dans Supabase → Settings → API.</div>'+
+      '<div class="fld"><label class="lbl" for="a_url">URL du projet</label><input type="url" id="a_url" class="mono" value="'+ech(etat.supa.url)+'" placeholder="https://xxxx.supabase.co"></div>'+
+      '<div class="fld"><label class="lbl" for="a_key">Clé anon (publique)</label><input type="text" id="a_key" class="mono" value="'+ech(etat.supa.key)+'" placeholder="eyJ…"></div>'+
+      B('Continuer','validerConfig()');
+  }else if(etape==='email'){
+    h+='<div class="q">Connexion</div><div class="exp">Entrez votre adresse e-mail : vous recevrez un code à usage unique. Aucun mot de passe à retenir.</div>'+
+      '<div class="fld"><label class="lbl" for="a_email">Adresse e-mail</label><input type="email" id="a_email" value="'+ech(aEmail)+'" autocomplete="email" inputmode="email" placeholder="prenom.nom@exemple.com" onkeydown="if(event.key===\'Enter\')envoyerCode()"></div>'+
+      B(ico('mail',18)+'Recevoir le code','envoyerCode()')+
+      (configFixe?'':'<button class="lien" onclick="etape=\'config\';rendreAccueil()">Changer de projet Supabase</button>');
+  }else if(etape==='code'){
+    h+='<div class="q">Code de vérification</div><div class="exp">Code envoyé à <b>'+ech(aEmail)+'</b>. Pensez à regarder dans les spams.</div>'+
+      '<div class="fld"><input type="text" id="a_code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" oninput="this.value=this.value.replace(/\\D/g,\'\')" onkeydown="if(event.key===\'Enter\')verifierCode()"></div>'+
+      B('Valider','verifierCode()')+
+      '<div style="display:flex;justify-content:space-between"><button class="lien" onclick="etape=\'email\';rendreAccueil()">Changer d’adresse</button>'+
+      '<button class="lien" onclick="envoyerCode()">Renvoyer le code</button></div>';
+  }else if(etape==='profil'){
+    h+='<div class="q">Votre identité</div><div class="exp">Demandée une seule fois. Elle signera toutes vos fiches.</div>'+
+      '<div class="fld"><label class="lbl" for="a_nom">Prénom et nom</label><input type="text" id="a_nom" maxlength="60" autocomplete="name" placeholder="ex. Aminata Koné"></div>'+
+      '<div class="fld"><label class="lbl">Poste</label><div class="postes">'+
+      Object.entries(POSTES).map(([k,l])=>'<button class="tag'+(aPoste===k?' sel':'')+'" onclick="aPoste=\''+k+'\';document.querySelectorAll(\'#accueil .postes .tag\').forEach(t=>t.classList.toggle(\'sel\',t===this))">'+l+'</button>').join('')+
+      '</div></div>'+B('Envoyer ma demande','creerProfil()');
+  }else if(etape==='attente'){
+    const m=etat.membre||{};
+    h+='<div class="q">Demande envoyée</div><div class="exp"><b>'+ech(m.nom||'')+'</b> · '+ech(POSTES[m.poste]||'')+'<br>'+
+      'Un médecin du cabinet doit valider votre compte avant que vous puissiez voir les rendez-vous.</div>'+
+      B(ico('refresh-cw',18)+'Vérifier à nouveau','verifierMembre(true)')+
+      '<button class="btn ghost full" style="margin-top:8px" onclick="deconnecter()">'+ico('log-out',18)+'Se déconnecter</button>'+
+      '<div class="hint" style="margin-top:12px">Premier compte du cabinet ? Voir « Valider le premier médecin » dans README-DEPLOIEMENT.md.</div>';
+  }else{
+    h+='<div class="q">Connexion impossible</div><div class="exp">'+ech(aMsg||'Vérifiez la connexion internet.')+'</div>'+B('Réessayer','demarrer()');
+  }
+  document.getElementById('accueilCorps').innerHTML=h+'</div>';
+  const f=document.querySelector('#accueil input');if(f&&!occupe)setTimeout(()=>f.focus(),50);
+}
+async function occuper(fn){if(occupe)return;occupe=true;rendreAccueilBoutons();
+  try{await fn();}catch(e){toast('Oups',e.message||String(e),'danger');}finally{occupe=false;rendreAccueilBoutons();}}
+function rendreAccueilBoutons(){document.querySelectorAll('#accueil .btn').forEach(b=>b.disabled=occupe);}
+function validerConfig(){
+  const u=document.getElementById('a_url').value.trim(), k=document.getElementById('a_key').value.trim();
+  if(!/^(https:\/\/.+|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?$)/.test(u)||!k){toast('Configuration incomplète','Renseignez l’URL (https://…) et la clé.','danger');return;}
+  etat.supa={url:u,key:k};sauver();etape='email';rendreAccueil();
+}
+function envoyerCode(){
+  const champ=document.getElementById('a_email');if(champ)aEmail=champ.value.trim().toLowerCase();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(aEmail)){toast('Adresse invalide','Vérifiez votre adresse e-mail.','danger');return;}
+  occuper(async()=>{await appelAuth('otp',{email:aEmail,create_user:true});
+    etape='code';rendreAccueil();toast('Code envoyé','Consultez votre boîte '+aEmail+'.','info');});
+}
+function verifierCode(){
+  const code=document.getElementById('a_code').value.trim();
+  if(code.length<6){toast('Code incomplet','Saisissez le code reçu par e-mail.','danger');return;}
+  occuper(async()=>{
+    try{garderSession(await appelAuth('verify',{type:'email',email:aEmail,token:code}));}
+    catch(e){throw new Error(e.status>=400&&e.status<500?'Code incorrect ou expiré. Demandez-en un nouveau.':e.message);}
+    await verifierMembre(true);
+  });
+}
+function creerProfil(){
+  const nom=document.getElementById('a_nom').value.trim().replace(/\s+/g,' ');
+  if(nom.length<2){toast('Nom manquant','Indiquez votre prénom et votre nom.','danger');return;}
+  occuper(async()=>{
+    await api('membres',{method:'POST',headers:{'Prefer':'return=minimal'},
+      body:JSON.stringify({id:etat.auth.user.id,nom,poste:aPoste})});
+    await verifierMembre(true);
+  });
+}
+/* Relit son propre compte : en attente, validé, retiré… */
+async function verifierMembre(afficherErreur){
+  try{
+    const l=await api('membres?id=eq.'+etat.auth.user.id+'&select=nom,poste,valide,email');
+    const m=l&&l[0], avant=pret();
+    if(!m){
+      // Compte retiré par le médecin : les données patients quittent l'appareil.
+      if(etat.membre){etat.records=[];etat.lastPush='';etat.lastPull='';}
+      etat.membre=null;sauver();etape='profil';montrerAccueil();return;
+    }
+    etat.membre=m;etat.user=m.nom;sauver();
+    if(!m.valide){etape='attente';montrerAccueil();return;}
+    cacherAccueil();
+    if(!avant){ongletActif='jour';rendre();toast('Bienvenue '+m.nom,POSTES[m.poste]||'');synchroniser(false);planifierRappels();}
+    else rendreSurPlace();
+    if(m.poste==='medecin')chargerEquipe();
+  }catch(e){
+    if(!etat.auth)return; // session perdue : l'écran de connexion est déjà affiché
+    if(!pret()){aMsg=e.message;etape='erreur';montrerAccueil();}
+    else if(afficherErreur)toast('Vérification impossible',e.message,'warning');
+  }
+}
+function deconnecter(){
+  const nonEnvoyes=etat.records.filter(r=>!etat.lastPush||(r.updated_at||'')>etat.lastPush).length;
+  if(!confirm(nonEnvoyes&&pret()?nonEnvoyes+' modification(s) pas encore synchronisée(s) seront perdues. Se déconnecter quand même ?'
+     :'Se déconnecter ? Les fiches seront retirées de cet appareil.'))return;
+  const a=etat.auth;
+  if(a)fetch(base()+'/auth/v1/logout',{method:'POST',headers:{'apikey':etat.supa.key,'Authorization':'Bearer '+a.access_token}}).catch(()=>{});
+  if(window.RDVmedPush)RDVmedPush.desactiver();
+  Object.assign(etat,{auth:null,membre:null,user:'',records:[],lastPush:'',lastPull:''});equipe=null;
+  sauver();rendre();etape='email';montrerAccueil();
+}
+async function changerNom(v){
+  const nom=v.trim().replace(/\s+/g,' ');if(nom.length<2||!pret()){rendre();return;}
+  try{await api('membres?id=eq.'+etat.auth.user.id,{method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify({nom})});
+    etat.membre.nom=nom;etat.user=nom;sauver();toast('Nom mis à jour',nom);}
+  catch(e){toast('Modification impossible',e.message,'danger');rendre();}
+}
+
+/* ============ ÉQUIPE (médecin) ============ */
+let equipe=null;
+function enAttente(){return estMedecin()&&equipe?equipe.filter(m=>!m.valide):[];}
+async function chargerEquipe(){
+  try{equipe=await api('membres?select=id,nom,poste,valide,email&order=valide.asc,nom.asc');}catch(e){return;}
+  if(ongletActif==='reglages')rendreSurPlace();else rendre();
+}
+function vueEquipe(){
+  let h='<div class="card md" style="margin-top:12px">'+
+  '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="display:inline-flex;color:var(--brand-secondary)">'+ico('users',20)+
+  '</span><span style="font-size:var(--text-base);font-weight:600;color:var(--text-heading)">Équipe</span></div>'+
+  '<div style="font-size:var(--text-sm);line-height:1.5">Validez les nouveaux comptes et attribuez les postes. Seul un médecin peut supprimer une fiche.</div>';
+  if(!equipe)return h+'<div class="hint">Chargement…</div></div>';
+  for(const m of equipe){const moi=m.id===etat.auth.user.id;
+    h+='<div class="nrow" style="flex-wrap:wrap"><div style="flex:1;min-width:0"><div class="nn">'+ech(m.nom)+(moi?' <span class="badge neutral">vous</span>':'')+'</div>'+
+      '<div class="nq">'+ech(m.email||'')+'</div></div>'+
+      (m.valide?'<span class="badge success">'+ech(POSTES[m.poste]||m.poste)+'</span>':'<span class="badge warning">En attente</span>');
+    if(!moi){
+      h+='<div style="flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;align-items:center">'+
+        Object.entries(POSTES).map(([k,l])=>'<button class="tag'+(m.poste===k?' sel':'')+'" onclick="posteMembre(\''+m.id+'\',\''+k+'\')">'+l+'</button>').join('')+
+        '<span style="flex:1"></span>'+
+        (m.valide?'':'<button class="btn primary sm" onclick="validerMembre(\''+m.id+'\')">'+ico('check',16)+'Valider</button>')+
+        '<button class="ib sm" onclick="retirerMembre(\''+m.id+'\')" aria-label="'+(m.valide?'Retirer':'Refuser')+' '+ech(m.nom)+'">'+ico('user-x',16)+'</button></div>';
+    }
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+async function gererMembre(id,poste,valide){
+  await api('rpc/gerer_membre',{method:'POST',body:JSON.stringify({p_id:id,p_poste:poste,p_valide:valide})});
+}
+async function posteMembre(id,poste){const m=(equipe||[]).find(x=>x.id===id);if(!m)return;
+  if(!m.valide){m.poste=poste;rendreSurPlace();return;} // choix appliqué à la validation
+  try{await gererMembre(id,poste,true);toast('Poste modifié',m.nom+' · '+POSTES[poste]);}
+  catch(e){toast('Modification impossible',e.message,'danger');}
+  chargerEquipe();
+}
+async function validerMembre(id){const m=(equipe||[]).find(x=>x.id===id);if(!m)return;
+  try{await gererMembre(id,m.poste,true);toast('Compte validé',m.nom+' · '+POSTES[m.poste]);}
+  catch(e){toast('Validation impossible',e.message,'danger');}
+  chargerEquipe();
+}
+async function retirerMembre(id){const m=(equipe||[]).find(x=>x.id===id);if(!m)return;
+  if(!confirm((m.valide?'Retirer ':'Refuser ')+m.nom+' de l’équipe ? Cette personne n’aura plus accès aux rendez-vous.'))return;
+  try{await api('membres?id=eq.'+id,{method:'DELETE'});toast(m.valide?'Membre retiré':'Demande refusée',m.nom,'warning');}
+  catch(e){toast('Action impossible',e.message,'danger');}
+  chargerEquipe();
 }
 
 /* ============ TOAST ============ */
@@ -749,11 +1014,18 @@ function toast(titre,texte,tone){
 
 /* ============ DÉMARRAGE ============ */
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-rendre();
-if(etat.supa.url&&etat.supa.key)synchroniser(false);
-planifierRappels();
-if(!etat.user)setTimeout(()=>{const n=prompt('Bienvenue dans RDVmed.\nVotre nom (affiché sur vos ajouts) :');
-  if(n){etat.user=n.trim();sauver();rendre();}},500);
+async function demarrer(){
+  appliquerConfig();rendre();
+  if(!etat.supa.url||!etat.supa.key){etape='config';montrerAccueil();return;}
+  if(!etat.auth){etape='email';montrerAccueil();return;}
+  if(pret()){cacherAccueil();synchroniser(false);planifierRappels();} // fonctionne aussi hors ligne
+  verifierMembre(false);
+}
+demarrer();
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible'||!etat.auth)return;
+  if(etape==='attente'&&!pret())verifierMembre(false);else if(pret())syncAuto();
+});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){fermerVoile();fermerForm();}});
 </script>
 </body>

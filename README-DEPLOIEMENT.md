@@ -1,22 +1,62 @@
-# RDVmed — Déploiement (5 min)
+# RDVmed — Déploiement
 
-## 1. GitHub Pages
-1. github.com → **New repository** → nom : `RDVmed` → Public → Create
-2. **Add file → Upload files** → glisser les 5 fichiers : `index.html`, `sw.js`, `manifest.webmanifest`, `icon-192.png`, `icon-512.png` → Commit
-3. **Settings → Pages** → Branch : `main`, dossier `/ (root)` → Save
-4. Après 1–2 min : **https://oden225.github.io/RDVmed**
+RDVmed fonctionne avec un compte par personne (connexion par code reçu par e-mail).
+Seuls les membres **validés par un médecin** voient les rendez-vous.
 
-## 2. Partage avec les secrétaires (Supabase — optionnel mais recommandé)
+## 1. Supabase (une seule fois)
 1. supabase.com → New project (gratuit)
-2. **SQL Editor** → coller le contenu de `supabase.sql` → **Run**
-3. **Settings → API** : copier **Project URL** et la clé **anon public**
-4. Sur chaque téléphone (le vôtre + secrétaires) : ouvrir RDVmed → **Réglages** → coller URL + clé → **Synchroniser**
-5. Chacun met son nom dans Réglages : les ajouts sont signés.
+2. **SQL Editor** → coller tout `supabase.sql` → **Run** (le script peut être relancé sans risque)
+3. **Settings → API** : copier **Project URL** et la clé **anon public**, les coller dans `config.js` :
+   ```js
+   supabaseUrl: 'https://xxxx.supabase.co',
+   supabaseAnonKey: 'eyJ…',
+   ```
 
-Sans Supabase, l'application fonctionne quand même, en local sur chaque appareil.
+### Envoi des codes par e-mail (obligatoire)
+L'expéditeur intégré de Supabase n'envoie qu'aux membres de votre organisation Supabase, et seulement quelques e-mails par heure : les secrétaires ne recevraient pas leur code.
+1. Créer un compte gratuit chez un service d'envoi (ex. **Brevo** : 300 e-mails/jour) et récupérer ses identifiants SMTP.
+2. Supabase → **Authentication → Emails → SMTP Settings** → activer **Custom SMTP** → coller hôte, port, identifiant, mot de passe, adresse d'expédition.
+3. Supabase → **Authentication → Emails → Templates** : dans **Magic Link** *et* **Confirm signup**, remplacer le contenu par exemple par :
+   ```html
+   <h2>RDVmed — votre code de connexion</h2>
+   <p>Saisissez ce code dans l'application : <strong style="font-size:24px">{{ .Token }}</strong></p>
+   <p>Il expire dans une heure. Si vous n'avez rien demandé, ignorez ce message.</p>
+   ```
+4. **Authentication → URL Configuration** → Site URL : `https://oden225.github.io/RDVmed`
 
-## 3. APK (comme d'habitude)
+## 2. GitHub Pages
+1. **Add file → Upload files** → glisser les 8 fichiers : `index.html`, `config.js`, `sw.js`, `push-client.js`, `manifest.webmanifest`, `logo-mark.svg`, `icon-192.png`, `icon-512.png` → Commit
+2. **Settings → Pages** → Branch : `main`, dossier `/ (root)` → Save
+3. Après 1–2 min : **https://oden225.github.io/RDVmed**
+
+## 3. Première connexion de chaque membre
+Ouvrir RDVmed → adresse e-mail → code reçu → **prénom, nom et poste** (Médecin, Secrétaire ou Gérant).
+Ces informations sont demandées une seule fois : la session reste ouverte tant qu'on ne se déconnecte pas.
+Le compte reste **en attente** jusqu'à sa validation par un médecin (Réglages → Équipe).
+
+### Valider le premier médecin
+Personne ne peut encore valider le tout premier compte : après vous être inscrit dans l'application, lancez une fois dans **SQL Editor** :
+```sql
+update membres set valide = true, poste = 'medecin' where email = 'votre@email';
+```
+Ensuite, tout se fait dans l'application : **Réglages → Équipe** → choisir le poste → **Valider** (ou refuser / retirer).
+
+### Droits
+| | Médecin | Secrétaire | Gérant |
+|---|---|---|---|
+| Voir, ajouter, marquer vu, reporter, annuler | ✅ | ✅ | ✅ |
+| Supprimer une fiche | ✅ | — | — |
+| Valider les comptes, attribuer les postes | ✅ | — | — |
+| Modifier l'identité du cabinet (nom, numéro de rappel, adresse) | ✅ | — | — |
+
+Ces règles sont appliquées par Supabase lui-même, pas seulement par l'affichage.
+Un membre retiré perd l'accès immédiatement, et les fiches sont effacées de son téléphone à la prochaine ouverture.
+
+## 4. Notifications (optionnel)
+Voir `README-notifications.md` (fonctions Supabase dans `supabase/functions/`).
+
+## 5. APK (comme d'habitude)
 pwabuilder.com → coller l'URL → Android → **Signing key → Use mine** avec votre keystore.
 
 ## Mises à jour
-Modifier `index.html` → incrémenter `rdvmed-v1` dans `sw.js` → re-uploader.
+Modifier les fichiers → incrémenter le numéro de `CACHE` dans `sw.js` (actuellement `rdvmed-v8`) → re-uploader.
