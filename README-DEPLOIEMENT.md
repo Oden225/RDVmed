@@ -2,7 +2,7 @@
 
 ## 1. GitHub Pages
 1. github.com → **New repository** → nom : `RDVmed` → Public → Create
-2. **Add file → Upload files** → glisser les 5 fichiers : `index.html`, `sw.js`, `manifest.webmanifest`, `icon-192.png`, `icon-512.png` → Commit
+2. **Add file → Upload files** → glisser les 7 fichiers : `index.html`, `sw.js`, `push-client.js`, `manifest.webmanifest`, `logo-mark.svg`, `icon-192.png`, `icon-512.png` → Commit
 3. **Settings → Pages** → Branch : `main`, dossier `/ (root)` → Save
 4. Après 1–2 min : **https://oden225.github.io/RDVmed**
 
@@ -15,8 +15,11 @@
 
 Sans Supabase, l'application fonctionne quand même, en local sur chaque appareil.
 
-## 3. APK (comme d'habitude)
+## 3. Notifications (optionnel)
+Voir `README-notifications.md` (fonctions Supabase dans `supabase/functions/`).
+
+## 4. APK (comme d'habitude)
 pwabuilder.com → coller l'URL → Android → **Signing key → Use mine** avec votre keystore.
 
 ## Mises à jour
-Modifier `index.html` → incrémenter `rdvmed-v1` dans `sw.js` → re-uploader.
+Modifier les fichiers → incrémenter le numéro de `CACHE` dans `sw.js` (actuellement `rdvmed-v4`) → re-uploader.

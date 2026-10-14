@@ -38,7 +38,7 @@
 
     // Enregistre l'abonnement dans Supabase (table push_subscriptions)
     if (url && key) {
-      await fetch(url.replace(/\/$/, '') + '/rest/v1/push_subscriptions', {
+      const r = await fetch(url.replace(/\/$/, '') + '/rest/v1/push_subscriptions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,6 +52,7 @@
           utilisateur: user,
         }),
       });
+      if (!r.ok) throw new Error('Enregistrement de l\u2019abonnement refusé (' + r.status + '). Table push_subscriptions créée ?');
     }
     return sub;
   }
@@ -61,9 +62,8 @@
     cfg = cfg || {};
     const url = cfg.supabaseUrl, key = cfg.supabaseAnonKey;
     if (!url || !key || !rdv) return null;
-    const base = url.replace(/\/$/, '').replace('.supabase.co', '.functions.supabase.co');
     try {
-      const r = await fetch(base + '/notify-new', {
+      const r = await fetch(url.replace(/\/$/, '') + '/functions/v1/notify-new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
