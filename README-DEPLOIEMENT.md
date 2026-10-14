@@ -47,6 +47,7 @@ Ensuite, tout se fait dans l'application : **Réglages → Équipe** → choisir
 | Voir, ajouter, marquer vu, reporter, annuler | ✅ | ✅ | ✅ |
 | Supprimer une fiche | ✅ | — | — |
 | Valider les comptes, attribuer les postes | ✅ | — | — |
+| Modifier l'identité du cabinet (nom, numéro de rappel, adresse) | ✅ | — | — |
 
 Ces règles sont appliquées par Supabase lui-même, pas seulement par l'affichage.
 Un membre retiré perd l'accès immédiatement, et les fiches sont effacées de son téléphone à la prochaine ouverture.
@@ -58,4 +59,4 @@ Voir `README-notifications.md` (fonctions Supabase dans `supabase/functions/`).
 pwabuilder.com → coller l'URL → Android → **Signing key → Use mine** avec votre keystore.
 
 ## Mises à jour
-Modifier les fichiers → incrémenter le numéro de `CACHE` dans `sw.js` (actuellement `rdvmed-v6`) → re-uploader.
+Modifier les fichiers → incrémenter le numéro de `CACHE` dans `sw.js` (actuellement `rdvmed-v7`) → re-uploader.

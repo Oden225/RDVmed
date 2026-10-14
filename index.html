@@ -368,14 +368,15 @@ function ico(n,s){s=s||20;return '<svg width="'+s+'" height="'+s+'" viewBox="0 0
 
 /* ============ ÉTAT ============ */
 const CLE='rdvmed_data';
+const CAB_DEFAUT={nom:'Groupe médical Al Nouf',tel:'21 50 03 65 62',adresse:'San Pedro, Bardot 2'};
 let etat=charger(), ongletActif='jour', editId=null, cibleId=null, jourSel=null;
 let filtreType='', rechA='', rechH='';
 function charger(){
   try{const d=JSON.parse(localStorage.getItem(CLE));
     if(d&&d.records){if(d.leadDays==null)d.leadDays=3;
-      if(!d.cab)d.cab={nom:'Groupe médical Al Nouf',tel:'21 50 03 65 62'};return d;}}catch(e){}
+      d.cab=Object.assign({},CAB_DEFAUT,d.cab||{});return d;}}catch(e){}
   return {records:[],user:'',supa:{url:'',key:''},lastPull:'',lastPush:'',leadDays:3,auth:null,membre:null,
-    cab:{nom:'Groupe médical Al Nouf',tel:'21 50 03 65 62'}};
+    cab:Object.assign({},CAB_DEFAUT)};
 }
 const POSTES={medecin:'Médecin',secretaire:'Secrétaire',gerant:'Gérant'};
 function pret(){return !!(etat.supa.url&&etat.supa.key&&etat.auth&&etat.membre&&etat.membre.valide);}
@@ -398,6 +399,7 @@ function imminents(){const l=+etat.leadDays||3;
 
 /* ============ RENDU ============ */
 function rendre(){
+  document.querySelector('.lock .sous').textContent=etat.cab.nom;
   document.getElementById('btnCloche').innerHTML=ico('bell',20)+
     (imminents().length?'<span class="pip">'+imminents().length+'</span>':'');
   document.querySelector('.hdr-actions .ib:last-child').innerHTML=ico('user-round',20);
@@ -547,16 +549,7 @@ function vueReglages(){
 
   (estMedecin()?vueEquipe():'')+
 
-  '<div class="card md" style="margin-top:12px">'+
-  '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="display:inline-flex;color:var(--brand-primary)">'+ico('message-square',20)+
-  '</span><span style="font-size:var(--text-base);font-weight:600;color:var(--text-heading)">Identité du cabinet</span></div>'+
-  '<div style="font-size:var(--text-sm);line-height:1.5;margin-bottom:12px">Signature et numéro de rappel utilisés dans tous les messages, quel que soit le poste qui envoie.</div>'+
-  '<label class="lbl" for="g_cabnom">Nom affiché</label>'+
-  '<input type="text" id="g_cabnom" value="'+ech((etat.cab||{}).nom||'')+'" placeholder="Groupe médical Al Nouf" onchange="etat.cab.nom=this.value.trim();sauver();rendre()">'+
-  '<div style="height:12px"></div><label class="lbl" for="g_cabtel">Numéro de rappel unique</label>'+
-  '<input type="tel" id="g_cabtel" class="mono" value="'+ech((etat.cab||{}).tel||'')+'" placeholder="21 50 03 65 62" onchange="etat.cab.tel=this.value.trim();sauver();rendre()">'+
-  '<div class="hint">À saisir à l\u2019identique sur chaque poste. Le patient voit toujours ce numéro, même si le SMS part d\u2019un autre téléphone.</div>'+
-  '<div class="card sunken" style="padding:12px 14px;margin-top:14px"><div style="font-size:var(--text-2xs);color:var(--text-muted);line-height:1.6;white-space:pre-line">'+ech(msgRappel({nom:'Aya K.',date:iso(2),spec:'Cardiologie'}))+'</div></div></div>'+
+  vueCabinet()+'<div class="card sunken" style="padding:12px 14px;margin-top:14px"><div style="font-size:var(--text-2xs);color:var(--text-muted);line-height:1.6;white-space:pre-line">'+ech(msgRappel({nom:'Aya K.',date:iso(2),spec:'Cardiologie'}))+'</div></div></div>'+
 
   '<div class="card md" style="margin-top:12px">'+
   '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="display:inline-flex;color:var(--brand-primary)">'+ico('bell',20)+
@@ -585,7 +578,36 @@ function vueReglages(){
   '<button class="btn ghost full" onclick="document.getElementById(\'g_fic\').click()">'+ico('folder-open',18)+'Restaurer une sauvegarde</button>'+
   '<input type="file" id="g_fic" accept=".json" style="display:none" onchange="restaurer(this.files[0])"></div>'+
   '<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border-subtle);font-size:var(--text-2xs);color:var(--text-muted);line-height:1.6">'+
-  ech((etat.cab||{}).nom||'Groupe médical Al Nouf')+' — San Pedro, Bardot 2<br>Tél.&nbsp;: <span style="font-family:var(--font-mono)">'+ech((etat.cab||{}).tel||'21 50 03 65 62')+'</span></div></div>';
+  ech(etat.cab.nom)+(etat.cab.adresse?' — '+ech(etat.cab.adresse):'')+'<br>Tél.&nbsp;: <span style="font-family:var(--font-mono)">'+ech(etat.cab.tel)+'</span></div></div>';
+}
+/* Identité du cabinet : partagée via Supabase, modifiable par le médecin, en lecture seule ailleurs. */
+function vueCabinet(){
+  const c=etat.cab, ed=estMedecin();
+  const champ=(id,k,lbl,type,cls,ph)=>'<label class="lbl" for="'+id+'">'+lbl+'</label>'+
+    (ed?'<input type="'+type+'" id="'+id+'"'+(cls?' class="'+cls+'"':'')+' value="'+ech(c[k])+'" placeholder="'+ph+'" onchange="changerCabinet(\''+k+'\',this.value)">'
+       :'<div class="'+(cls||'')+'" style="font-size:var(--text-base);color:var(--text-heading);padding:2px 0 0">'+(ech(c[k])||'—')+'</div>')+
+    '<div style="height:12px"></div>';
+  return '<div class="card md" style="margin-top:12px">'+
+  '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="display:inline-flex;color:var(--brand-primary)">'+ico('message-square',20)+
+  '</span><span style="font-size:var(--text-base);font-weight:600;color:var(--text-heading)">Identité du cabinet</span></div>'+
+  '<div style="font-size:var(--text-sm);line-height:1.5;margin-bottom:12px">Signature et numéro de rappel utilisés dans tous les messages, quel que soit le poste qui envoie.</div>'+
+  champ('g_cabnom','nom','Nom affiché','text','','Groupe médical Al Nouf')+
+  champ('g_cabtel','tel','Numéro de rappel unique','tel','mono','21 50 03 65 62')+
+  champ('g_cabadr','adresse','Adresse','text','','San Pedro, Bardot 2')+
+  '<div class="hint" style="margin-top:-6px">'+(ed?'Partagé avec tous les postes du cabinet dès l\u2019enregistrement.'
+     :'Commun à tous les postes. Seul un médecin peut le modifier.')+'</div>';
+}
+async function changerCabinet(k,v){
+  v=v.trim();if(k==='nom'&&!v){rendreSurPlace();return;}
+  const avant=etat.cab[k];etat.cab[k]=v;sauver();rendreSurPlace();
+  try{await api('cabinet?id=eq.1',{method:'PATCH',headers:{'Prefer':'return=minimal'},
+      body:JSON.stringify({[k]:v,updated_at:new Date().toISOString()})});
+    toast('Identité du cabinet mise à jour','Visible sur tous les postes.');}
+  catch(e){etat.cab[k]=avant;sauver();rendreSurPlace();toast('Modification impossible',e.message,'danger');}
+}
+async function chargerCabinet(){
+  try{const l=await api('cabinet?id=eq.1&select=nom,tel,adresse');
+    if(l&&l[0]){etat.cab=Object.assign({},CAB_DEFAUT,l[0]);sauver();}}catch(e){}
 }
 
 /* ============ FORMULAIRE ============ */
@@ -657,7 +679,7 @@ function telIntl(t){let d=(t||'').replace(/\D/g,'');if(d.startsWith('00'))d=d.sl
 function relanceWA(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
   const m=msgRappel(r);
   window.open('https://wa.me/'+telIntl(r.tel)+'?text='+encodeURIComponent(m),'_blank');}
-function msgRappel(r){const c=etat.cab||{};
+function msgRappel(r){const c=etat.cab;
   return 'Bonjour '+r.nom+', rappel de votre rendez-vous prévu le '+fmtLong(r.date)+
     (r.spec?' ('+r.spec+')':'')+'. Merci de passer nous voir.\n'+
     (c.nom||'Groupe médical Al Nouf')+'\nPour toute question, appelez uniquement le '+(c.tel||'21 50 03 65 62')+'.';}
@@ -760,6 +782,7 @@ async function synchroniser(manuel){
     etat.lastPush=debut;
     // 2. Récupérer la version partagée ; la plus récente gagne.
     const dist=await api('rdv?select=*');
+    await chargerCabinet();
     for(const r of dist){const loc=etat.records.find(x=>x.id===r.id);
       if(!loc)etat.records.push(r);
       else if((r.updated_at||'')>(loc.updated_at||''))Object.assign(loc,r);}
@@ -824,7 +847,7 @@ function cacherAccueil(){document.getElementById('accueil').classList.remove('ou
 function rendreAccueil(){
   const B=(txt,fn,cls)=>'<button class="btn '+(cls||'primary')+' lg full" '+(occupe?'disabled ':'')+'onclick="'+fn+'">'+txt+'</button>';
   let h='<div class="logo"><img src="logo-mark.svg" alt="" onerror="this.src=\'icon-192.png\'">'+
-    '<div class="titre">RDVmed</div><div class="st">'+ech((etat.cab||{}).nom||'Groupe médical Al Nouf')+'</div></div><div class="card md">';
+    '<div class="titre">RDVmed</div><div class="st">'+ech(etat.cab.nom)+'</div></div><div class="card md">';
   if(etape==='config'){
     h+='<div class="q">Configuration du cabinet</div><div class="exp">Une seule fois par appareil. Ces informations se trouvent dans Supabase → Settings → API.</div>'+
       '<div class="fld"><label class="lbl" for="a_url">URL du projet</label><input type="url" id="a_url" class="mono" value="'+ech(etat.supa.url)+'" placeholder="https://xxxx.supabase.co"></div>'+

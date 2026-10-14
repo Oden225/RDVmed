@@ -56,6 +56,26 @@ end $$;
 revoke execute on function gerer_membre(uuid, text, boolean) from public, anon;
 grant execute on function gerer_membre(uuid, text, boolean) to authenticated;
 
+/* ---------- Identité du cabinet ----------
+   Une seule ligne, lue par tous les membres (signature et numéro de rappel
+   des messages aux patients), modifiable par le médecin uniquement. */
+create table if not exists cabinet (
+  id int primary key default 1 check (id = 1),
+  nom text not null default 'Groupe médical Al Nouf' check (length(trim(nom)) between 1 and 80),
+  tel text not null default '21 50 03 65 62' check (length(tel) <= 30),
+  adresse text not null default 'San Pedro, Bardot 2' check (length(adresse) <= 120),
+  updated_at timestamptz default now()
+);
+insert into cabinet (id) values (1) on conflict (id) do nothing;
+alter table cabinet enable row level security;
+drop policy if exists "cabinet_lecture" on cabinet;
+drop policy if exists "cabinet_modif" on cabinet;
+create policy "cabinet_lecture" on cabinet for select using (est_membre());
+create policy "cabinet_modif" on cabinet for update using (est_medecin()) with check (est_medecin());
+revoke all on cabinet from anon, authenticated;
+grant select on cabinet to authenticated;
+grant update (nom, tel, adresse, updated_at) on cabinet to authenticated;
+
 /* ---------- Rendez-vous partagés ---------- */
 create table if not exists rdv (
   id text primary key,
