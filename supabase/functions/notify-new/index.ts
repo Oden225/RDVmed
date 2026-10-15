@@ -29,9 +29,11 @@ Deno.serve(async (req) => {
   }
 
   const type = NOMTYPE[court(rdv.type, 20)] || court(rdv.type, 30);
+  const heure = court(rdv.heure, 5);
+  const quand = fmtDate(date) + (/^\d{2}:\d{2}$/.test(heure) ? " à " + heure.replace(":", " h ") : "");
   const msg = {
     title: "Nouveau rendez-vous",
-    body: nom + " · " + fmtDate(date) + (type ? " · " + type : "") + (auteur.nom ? "\nAjouté par " + court(auteur.nom, 60) : ""),
+    body: nom + " · " + quand + (type ? " · " + type : "") + (auteur.nom ? "\nAjouté par " + court(auteur.nom, 60) : ""),
     tag: "rdvmed-nouveau-" + court(rdv.id, 60),
     id: court(rdv.id, 60) || null,
   };

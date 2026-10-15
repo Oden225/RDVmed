@@ -27,7 +27,7 @@
   --danger-600:#C0261F; --danger-100:#FBE2E0;
 
   --brand-primary:var(--green-600); --brand-secondary:var(--blue-600);
-  --text-heading:var(--grey-900); --text-body:var(--grey-700); --text-muted:var(--grey-500);
+  --text-heading:var(--grey-900); --text-body:var(--grey-700); --text-muted:var(--grey-600);
   --surface-page:var(--grey-50); --surface-card:var(--white); --surface-sunken:var(--grey-100);
   --surface-brand-soft:var(--green-50); --surface-secondary-soft:var(--blue-50);
   --surface-overlay:rgba(18,22,26,.55);
@@ -36,7 +36,7 @@
   --font-display:"Oswald","Arial Narrow",sans-serif;
   --font-sans:"Archivo","Helvetica Neue",Arial,sans-serif;
   --font-mono:"Roboto Mono",ui-monospace,monospace;
-  --text-3xs:11px; --text-2xs:12px; --text-xs:13px; --text-sm:14px;
+  --text-3xs:12px; --text-2xs:13px; --text-xs:13px; --text-sm:14px;
   --text-base:16px; --text-lg:18px; --text-xl:21px; --text-2xl:26px;
 
   --radius-sm:3px; --radius-md:6px; --radius-lg:10px; --radius-xl:16px; --radius-pill:999px;
@@ -73,7 +73,7 @@ header{flex:none;height:64px;display:flex;align-items:center;justify-content:spa
   display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;
   transition:background-color var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard)}
 .ib:hover{background:var(--grey-100)}
-.ib.sm{width:32px;height:32px}
+.ib.sm{width:44px;height:44px}
 .ib.outline{border:1px solid var(--border-default);background:var(--surface-card)}
 .ib.outline:hover{background:var(--grey-100)}
 .ib .pip{position:absolute;top:2px;right:2px;min-width:17px;height:17px;padding:0 4px;border-radius:var(--radius-pill);
@@ -85,7 +85,7 @@ header{flex:none;height:64px;display:flex;align-items:center;justify-content:spa
   border-color var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard)}
 .btn:active{transform:scale(.985)}
 .btn.lg{height:48px;font-size:var(--text-base)}
-.btn.sm{height:32px;padding:0 12px;font-size:var(--text-xs)}
+.btn.sm{height:40px;padding:0 14px;font-size:var(--text-xs)}
 .btn.full{width:100%}
 .btn.primary{background:var(--green-600);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
 .btn.primary:hover{background:var(--green-700)}
@@ -98,12 +98,12 @@ header{flex:none;height:64px;display:flex;align-items:center;justify-content:spa
 .btn.ghost:hover{background:var(--grey-100)}
 .btn.danger{background:var(--danger-600);color:#fff}
 .btn.danger:hover{background:#9E1F19}
-.tag{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border:1px solid var(--border-default);
+.tag{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:1px solid var(--border-default);
   border-radius:var(--radius-pill);background:var(--surface-card);font-size:var(--text-xs);font-weight:600;
   color:var(--text-body);cursor:pointer;white-space:nowrap;
   transition:background-color var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard)}
 .tag:hover{background:var(--grey-100)}
-.tag.sel{border:2px solid var(--border-brand);background:var(--surface-brand-soft);color:var(--green-800);padding:0 11px}
+.tag.sel{border:2px solid var(--border-brand);background:var(--surface-brand-soft);color:var(--green-800);padding:0 13px}
 .badge{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:var(--radius-pill);
   font-size:var(--text-2xs);font-weight:600;white-space:nowrap}
 .badge.neutral{background:var(--grey-100);color:var(--grey-600)}
@@ -136,11 +136,12 @@ textarea{height:auto;min-height:76px;padding:10px 12px;resize:vertical;line-heig
 .pnom{font-size:var(--text-lg);font-weight:600;color:var(--text-heading);line-height:1.2}
 .pdate{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--text-muted);margin-top:3px}
 .pnote{font-size:var(--text-sm);color:var(--text-body);line-height:1.5;margin-top:8px}
-.ppar{font-size:var(--text-2xs);color:var(--grey-400);margin-top:6px}
+.ppar{font-size:var(--text-2xs);color:var(--text-muted);margin-top:6px}
+.prel{display:flex;align-items:center;gap:6px;font-size:var(--text-2xs);color:var(--blue-700);margin-top:6px}
 .prow{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .ptags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .pacts{display:flex;gap:8px;margin-top:14px}
-.pacts .btn{flex:1}
+.pacts .btn{flex:1;height:44px}
 .vide{text-align:center;color:var(--text-muted);padding:8px}
 .vide .ic{display:inline-flex;color:var(--grey-400)}
 .vide .t{font-size:var(--text-base);font-weight:600;color:var(--text-heading);margin-top:10px}
@@ -238,6 +239,13 @@ nav button.tb .pip{position:absolute;top:4px;right:calc(50% - 22px);min-width:16
 #toast.danger{border-top-color:var(--danger-600)}
 #toast .tt{font-size:var(--text-sm);font-weight:600;color:var(--text-heading)}
 #toast .td{font-size:var(--text-2xs);color:var(--text-muted);margin-top:2px;line-height:1.5}
+#toast.on.act{display:flex;align-items:center;gap:12px}
+#toast .tx{flex:1;min-width:0}
+#toast .ta{flex:none;height:40px;padding:0 14px;border:none;border-radius:var(--radius-md);background:var(--surface-secondary-soft);
+  color:var(--blue-700);font-family:inherit;font-size:var(--text-sm);font-weight:600;cursor:pointer}
+.hsync{display:none;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:var(--radius-pill);
+  background:var(--warning-100);color:var(--warning-600);font-size:var(--text-2xs);font-weight:600;white-space:nowrap}
+.hsync.on{display:inline-flex}
 .sdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--grey-300);margin-right:6px}
 .sdot.on{background:var(--green-600)} .sdot.err{background:var(--danger-600)}
 /* ===== Accueil / connexion ===== */
@@ -281,6 +289,7 @@ nav button.tb .pip{position:absolute;top:4px;right:calc(50% - 22px);min-width:16
     </div>
   </div>
   <div class="hdr-actions">
+    <span class="hsync" id="etatSync" role="status"></span>
     <button class="ib" id="btnCloche" onclick="ouvrirRappels()" aria-label="Rappels de rendez-vous"></button>
     <button class="ib" onclick="ouvrirOnglet('reglages')" aria-label="Utilisateur et réglages"></button>
   </div>
@@ -329,7 +338,9 @@ nav button.tb .pip{position:absolute;top:4px;right:calc(50% - 22px);min-width:16
         <button class="tag" onclick="dateRapide(30,this)">+1 mois</button>
         <button class="tag" onclick="dateRapide(90,this)">+3 mois</button>
       </div>
-      <input type="date" id="f_date"></div>
+      <input type="date" id="f_date">
+      <label class="lbl" for="f_heure" style="margin-top:12px">Heure <span style="font-weight:400;color:var(--text-muted)">(facultatif)</span></label>
+      <input type="time" id="f_heure" style="max-width:160px"></div>
     <div class="fld"><label class="lbl" for="f_note">Note</label>
       <textarea id="f_note" placeholder="ex. Apporter le carnet et les dernières analyses."></textarea></div>
     <button class="btn primary lg full" onclick="enregistrer()" id="btnSave">Enregistrer le suivi</button>
@@ -366,6 +377,8 @@ const P={
  'folder-open':'<path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/>',
  'refresh-cw':'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
  'user-round':'<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+ 'pencil':'<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+ 'wifi-off':'<path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/>',
  'share':'<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/>',
  'square-plus':'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/>',
  'more-vertical':'<circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>',
@@ -402,16 +415,26 @@ function ecart(s){const a=new Date(auj()+'T12:00:00'),b=new Date(s+'T12:00:00');
 function fmtLong(s){if(!s)return'';return new Date(s+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
 function fmtCourt(s){if(!s)return'';return new Date(s+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});}
 const NOMTYPE={specialiste:'RDV spécialiste',posthosp:'Post-hospitalisation',controle:'Contrôle'};
+function fmtHeure(h){return /^\d\d:\d\d$/.test(h||'')?h.replace(':',' h '):'';}
+function quandCourt(t){if(!t)return'';const d=new Date(t),h=String(d.getHours()).padStart(2,'0')+' h '+String(d.getMinutes()).padStart(2,'0');
+  const j=Math.round((new Date(auj()+'T12:00:00')-new Date(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T12:00:00'))/864e5);
+  return j===0?'aujourd\u2019hui '+h:j===1?'hier '+h:'le '+d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' à '+h;}
+function sansAccent(t){return String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();}
+/* Recherche par nom (sans tenir compte des accents) ou par numéro de téléphone */
+function correspond(r,q){if(!q)return true;if(sansAccent(r.nom).includes(sansAccent(q)))return true;
+  const d=q.replace(/\D/g,'');return d.length>=3&&(r.tel||'').replace(/\D/g,'').includes(d);}
+const parDateHeure=(a,b)=>(a.date+(a.heure||'99:99'))<(b.date+(b.heure||'99:99'))?-1:1;
 const DOWS=['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
 function ech(t){return String(t==null?'':t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
 function actifs(){return etat.records.filter(r=>!r.deleted&&r.statut==='attente');}
-function retards(){return actifs().filter(r=>r.date<auj()).sort((a,b)=>a.date<b.date?-1:1);}
+function retards(){return actifs().filter(r=>r.date<auj()).sort(parDateHeure);}
 function imminents(){const l=+etat.leadDays||3;
   return actifs().filter(r=>{const e=ecart(r.date);return e>=1&&e<=l;}).sort((a,b)=>a.date<b.date?-1:1);}
 
 /* ============ RENDU ============ */
 function rendre(){
   document.querySelector('.lock .sous').textContent=etat.cab.nom;
+  majEtatSync();
   document.getElementById('btnCloche').innerHTML=ico('bell',20)+
     (imminents().length?'<span class="pip">'+imminents().length+'</span>':'');
   document.querySelector('.hdr-actions .ib:last-child').innerHTML=ico('user-round',20);
@@ -430,6 +453,15 @@ function rendre(){
 }
 function ouvrirOnglet(o){ongletActif=o;jourSel=null;rendre();if(o==='reglages'&&estMedecin())chargerEquipe();}
 function rendreSurPlace(){const v=document.getElementById('vue'),y=v.scrollTop;rendre();v.scrollTop=y;}
+/* Rafraîchissement venu d'ailleurs (synchro, équipe) : on n'efface pas une saisie en cours,
+   on attend que le champ soit quitté. */
+let aRedessiner=false;
+function rendreSiLibre(){
+  const a=document.activeElement;
+  if(a&&document.getElementById('vue').contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){aRedessiner=true;return;}
+  rendreSurPlace();
+}
+document.addEventListener('focusout',()=>{if(aRedessiner){aRedessiner=false;setTimeout(rendreSiLibre,0);}});
 
 function badge(r){const e=ecart(r.date);
   if(e<0)return '<span class="badge danger">'+ico('alert-triangle',14)+'Retard de '+(-e)+'\u00A0j</span>';
@@ -439,17 +471,19 @@ function badge(r){const e=ecart(r.date);
 function carte(r){
   return '<div class="card mb12">'+
     '<div class="prow"><div style="min-width:0"><div class="pnom">'+ech(r.nom)+'</div>'+
-      '<div class="pdate">'+fmtCourt(r.date)+'</div></div>'+badge(r)+'</div>'+
+      '<div class="pdate">'+fmtCourt(r.date)+(r.heure?' · '+fmtHeure(r.heure):'')+'</div></div>'+badge(r)+'</div>'+
     '<div class="ptags"><span class="badge neutral">'+ (NOMTYPE[r.type]||ech(r.type)) +'</span>'+
       (r.spec?'<span class="badge neutral">'+ech(r.spec)+'</span>':'')+'</div>'+
     (r.note?'<div class="pnote">'+ech(r.note)+'</div>':'')+
     (r.created_by?'<div class="ppar">Ajouté par '+ech(r.created_by)+'</div>':'')+
+    (r.relance_at?'<div class="prel">'+ico(CANAUX[r.relance_canal]?CANAUX[r.relance_canal][1]:'phone',14)+'Relancé'+
+      (r.relance_by?' par '+ech(r.relance_by):'')+(CANAUX[r.relance_canal]?' · '+CANAUX[r.relance_canal][0]:'')+' · '+quandCourt(r.relance_at)+'</div>':'')+
     '<div class="pacts">'+
       '<button class="btn primary sm" onclick="marquerVu(\''+r.id+'\')">'+ico('check',16)+'Vu</button>'+
       (r.tel?'<button class="ib sm outline" onclick="relanceWA(\''+r.id+'\')" aria-label="Relancer par WhatsApp">'+ico('message-circle',16)+'</button>'+
              '<button class="ib sm outline" onclick="relanceSMS(\''+r.id+'\')" aria-label="Relancer par SMS">'+ico('message-square',16)+'</button>'+
              '<button class="ib sm outline" onclick="appeler(\''+r.id+'\')" aria-label="Appeler le patient">'+ico('phone',16)+'</button>':'')+
-      '<button class="ib sm" onclick="ouvrirPlus(\''+r.id+'\')" aria-label="Reporter ou annuler">'+ico('more-horizontal',16)+'</button>'+
+      '<button class="ib sm" onclick="ouvrirPlus(\''+r.id+'\')" aria-label="Modifier, reporter ou annuler">'+ico('more-horizontal',16)+'</button>'+
     '</div></div>';
 }
 function bandeHTML(){
@@ -471,14 +505,14 @@ function choisirJour(s){jourSel=(jourSel===s?null:s);rendre();}
 function vueJour(){
   let h='<div class="eyebrow">Aujourd\u2019hui</div><div class="h1">'+fmtLong(auj())+'</div>'+bandeHTML();
   if(jourSel){
-    const l=actifs().filter(r=>r.date===jourSel);
+    const l=actifs().filter(r=>r.date===jourSel).sort(parDateHeure);
     h+='<div class="sect" style="justify-content:space-between"><span class="eyebrow">'+fmtLong(jourSel)+'</span>'+
        '<button class="btn ghost sm" onclick="choisirJour(\''+jourSel+'\')">'+ico('x',14)+'Tout voir</button></div>';
     h+=l.length?'<div class="stk">'+l.map(carte).join('')+'</div>':
        '<div class="card sunken"><div class="vide"><div class="d">Aucun passage prévu ce jour-là.</div></div></div>';
     return h;
   }
-  const re=retards(), jr=actifs().filter(r=>r.date===auj()).sort((a,b)=>a.nom.localeCompare(b.nom));
+  const re=retards(), jr=actifs().filter(r=>r.date===auj()).sort((a,b)=>(a.heure||'99:99').localeCompare(b.heure||'99:99')||a.nom.localeCompare(b.nom));
   if(re.length)h+='<div class="sect"><span class="eyebrow" style="color:var(--danger-600)">En retard</span>'+
     '<span class="cnt">'+re.length+'</span></div><div class="stk">'+re.map(carte).join('')+'</div>';
   if(jr.length)h+='<div class="sect"><span class="eyebrow">Passages du jour</span></div>'+
@@ -491,11 +525,11 @@ function vueJour(){
 function vueAvenir(){
   let l=actifs().filter(r=>r.date>auj());
   if(filtreType)l=l.filter(r=>r.type===filtreType);
-  if(rechA)l=l.filter(r=>r.nom.toLowerCase().includes(rechA));
-  l.sort((a,b)=>a.date<b.date?-1:1);
+  if(rechA)l=l.filter(r=>correspond(r,rechA));
+  l.sort(parDateHeure);
   let h='<div class="eyebrow">À venir</div><div class="h1">'+l.length+' passage'+(l.length>1?'s':'')+' programmé'+(l.length>1?'s':'')+'</div>'+
     '<div class="srch" style="margin-top:14px"><span class="gl">'+ico('search',18)+'</span>'+
-    '<input type="search" placeholder="Rechercher un patient" value="'+ech(rechA)+'" oninput="rechA=this.value.toLowerCase();majA()"></div>'+
+    '<input type="search" placeholder="Nom ou numéro du patient" value="'+ech(rechA)+'" oninput="rechA=this.value;majA()"></div>'+
     '<div style="display:flex;gap:6px;overflow-x:auto;margin:12px 0 16px;padding-bottom:2px">'+
     [['','Tous'],['specialiste','Spécialiste'],['posthosp','Post-hosp.'],['controle','Contrôle']]
       .map(([v,n])=>'<button class="tag'+(filtreType===v?' sel':'')+'" style="flex:none" onclick="filtreType=\''+v+'\';rendre()">'+n+'</button>').join('')+
@@ -510,20 +544,29 @@ function listeA(l){
 function majA(){
   let l=actifs().filter(r=>r.date>auj());
   if(filtreType)l=l.filter(r=>r.type===filtreType);
-  if(rechA)l=l.filter(r=>r.nom.toLowerCase().includes(rechA));
-  l.sort((a,b)=>a.date<b.date?-1:1);
+  if(rechA)l=l.filter(r=>correspond(r,rechA));
+  l.sort(parDateHeure);
   document.getElementById('listeA').innerHTML=listeA(l);
 }
 function vueHisto(){
   let l=etat.records.filter(r=>!r.deleted&&r.statut!=='attente');
-  if(rechH)l=l.filter(r=>r.nom.toLowerCase().includes(rechH));
   l.sort((a,b)=>(b.vu_at||b.updated_at||'').localeCompare(a.vu_at||a.updated_at||''));
   let h='<div class="eyebrow">Historique</div><div class="h1">Patients vus et annulés</div>'+
     '<div class="srch" style="margin-top:14px"><span class="gl">'+ico('search',18)+'</span>'+
-    '<input type="search" placeholder="Rechercher un patient" value="'+ech(rechH)+'" oninput="rechH=this.value.toLowerCase();rendre()"></div>';
+    '<input type="search" placeholder="Nom ou numéro du patient" value="'+ech(rechH)+'" oninput="rechH=this.value;majH()"></div>';
   if(!l.length)return h+'<div class="card sunken md" style="margin-top:16px"><div class="vide"><div class="ic">'+
     ico('history',32)+'</div><div class="t">Historique vide</div><div class="d">Les patients marqués vus apparaîtront ici.</div></div></div>';
-  h+='<div class="stk" style="margin-top:16px">';
+  return h+'<div id="listeH">'+listeH(l)+'</div>';
+}
+function majH(){
+  const l=etat.records.filter(r=>!r.deleted&&r.statut!=='attente');
+  l.sort((a,b)=>(b.vu_at||b.updated_at||'').localeCompare(a.vu_at||a.updated_at||''));
+  document.getElementById('listeH').innerHTML=listeH(l);
+}
+function listeH(l){
+  if(rechH)l=l.filter(r=>correspond(r,rechH));
+  if(!l.length)return '<div class="card sunken md" style="margin-top:16px"><div class="vide"><div class="d">Aucun patient ne correspond.</div></div></div>';
+  let h='<div class="stk" style="margin-top:16px">';
   for(const r of l.slice(0,200)){
     h+='<div class="card mb12"><div class="prow"><div style="min-width:0">'+
       '<div class="pnom" style="font-size:var(--text-base)">'+ech(r.nom)+'</div>'+
@@ -629,27 +672,47 @@ async function chargerCabinet(){
 }
 
 /* ============ FORMULAIRE ============ */
-function ouvrirNouveau(){
-  editId=null;document.getElementById('titreForm').textContent='Nouveau suivi';
-  ['f_nom','f_tel','f_spec','f_note','f_date'].forEach(i=>document.getElementById(i).value='');
-  document.querySelectorAll('#f_type .tag').forEach(c=>c.classList.toggle('sel',c.dataset.v==='controle'));
+function ouvrirNouveau(){ouvrirFormulaire(null);}
+function ouvrirEdition(id){fermerVoile();ouvrirFormulaire(etat.records.find(x=>x.id===id)||null);}
+function ouvrirFormulaire(r){
+  editId=r?r.id:null;
+  document.getElementById('titreForm').textContent=r?'Modifier le suivi':'Nouveau suivi';
+  document.getElementById('btnSave').textContent=r?'Enregistrer les modifications':'Enregistrer le suivi';
+  const v={f_nom:'nom',f_tel:'tel',f_spec:'spec',f_note:'note',f_date:'date',f_heure:'heure'};
+  for(const i in v)document.getElementById(i).value=r?(r[v[i]]||''):'';
+  document.querySelectorAll('.fld .tag[onclick^="dateRapide"]').forEach(c=>c.classList.remove('sel'));
+  document.querySelectorAll('#f_type .tag').forEach(c=>c.classList.toggle('sel',c.dataset.v===(r?r.type:'controle')));
   document.getElementById('feuilleForm').classList.add('ouverte');
-  setTimeout(()=>document.getElementById('f_nom').focus(),150);
+  if(!r)setTimeout(()=>document.getElementById('f_nom').focus(),150);
 }
 function fermerForm(){document.getElementById('feuilleForm').classList.remove('ouverte');}
 function selType(el){document.querySelectorAll('#f_type .tag').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
 function dateRapide(j,el){document.getElementById('f_date').value=iso(j);
   if(el){el.parentNode.querySelectorAll('.tag').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}}
-function enregistrer(){
-  const nom=document.getElementById('f_nom').value.trim(), date=document.getElementById('f_date').value;
+async function enregistrer(){
+  const nom=document.getElementById('f_nom').value.trim().replace(/\s+/g,' '), date=document.getElementById('f_date').value;
   const sel=document.querySelector('#f_type .tag.sel'), type=sel?sel.dataset.v:'controle';
   if(!nom){toast('Nom manquant','Renseignez le nom du patient.','danger');return;}
   if(!date){toast('Date manquante','Choisissez la date prévue.','danger');return;}
+  const champs={nom,type,date,tel:document.getElementById('f_tel').value.trim(),
+    spec:document.getElementById('f_spec').value.trim(),heure:document.getElementById('f_heure').value||'',
+    note:document.getElementById('f_note').value.trim()};
   const t=new Date().toISOString();
-  const nouveau={id:uuid(),nom,tel:document.getElementById('f_tel').value.trim(),type,
-    spec:document.getElementById('f_spec').value.trim(),date,
-    note:document.getElementById('f_note').value.trim(),statut:'attente',vu_at:null,
-    created_by:etat.user||'',deleted:0,created_at:t,updated_at:t};
+  if(editId){
+    const r=etat.records.find(x=>x.id===editId);if(!r){fermerForm();return;}
+    const avant=memoriser(r);
+    Object.assign(r,champs,{updated_at:t});
+    sauver();fermerForm();rendreSurPlace();syncAuto();planifierRappels();
+    toastAnnulable('Fiche modifiée',r.nom+' · '+fmtLong(r.date),r,avant);
+    return;
+  }
+  // Même patient déjà en attente : on prévient avant de créer un doublon.
+  const dbl=actifs().find(x=>sansAccent(x.nom)===sansAccent(nom));
+  if(dbl&&!await demander({titre:'Patient déjà suivi',
+      texte:dbl.nom+' a déjà un rendez-vous en attente le '+fmtLong(dbl.date)+(dbl.heure?' à '+fmtHeure(dbl.heure):'')+'. Enregistrer quand même un nouveau suivi ?',
+      ok:'Enregistrer quand même'}))return;
+  const nouveau=Object.assign({id:uuid()},champs,{statut:'attente',vu_at:null,
+    created_by:etat.user||'',deleted:0,created_at:t,updated_at:t});
   etat.records.push(nouveau);
   sauver();fermerForm();ongletActif=ecart(date)>0?'avenir':'jour';rendre();
   toast('Suivi enregistré',nom+' · '+fmtLong(date));syncAuto();planifierRappels();
@@ -661,14 +724,27 @@ async function notifierAutres(r){
 }
 
 /* ============ ACTIONS ============ */
+/* Annulation : on garde l'état d'avant, et « Annuler » le remet avec une date de modification
+   plus récente, pour que la correction l'emporte aussi sur les autres postes. */
+let _annuler=null;
+function memoriser(r){return JSON.parse(JSON.stringify(r));}
+function toastAnnulable(titre,texte,r,avant,tone){
+  const f=()=>{Object.assign(r,avant,{updated_at:new Date().toISOString()});
+    sauver();rendreSurPlace();syncAuto();planifierRappels();toast('Action annulée',r.nom,'info');};
+  toast(titre,texte,tone,{label:'Annuler',fn:'annulerDerniere()'});
+  _annuler=f;
+}
+function annulerDerniere(){const f=_annuler;_annuler=null;if(f)f();}
 function marquerVu(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
+  const avant=memoriser(r);
   r.statut='vu';r.vu_at=new Date().toISOString();r.updated_at=r.vu_at;
-  sauver();rendre();toast('Patient marqué vu',r.nom+' passe à l\u2019historique.');syncAuto();}
+  sauver();rendreSurPlace();syncAuto();toastAnnulable('Patient marqué vu',r.nom+' passe à l’historique.',r,avant);}
 function ouvrirPlus(id){cibleId=id;const r=etat.records.find(x=>x.id===id);
   document.getElementById('modale').innerHTML=
-   '<div class="mh"><div><div class="mt">Reporter ou annuler</div>'+
-   '<div class="md" style="margin-bottom:0">'+ech(r?r.nom:'')+'</div></div>'+
+   '<div class="mh"><div><div class="mt">'+ech(r?r.nom:'')+'</div>'+
+   '<div class="md" style="margin-bottom:0">'+(r?fmtLong(r.date)+(r.heure?' à '+fmtHeure(r.heure):''):'')+'</div></div>'+
    '<button class="ib" onclick="fermerVoile()" aria-label="Fermer">'+ico('x',20)+'</button></div>'+
+   '<button class="btn outline full" style="margin-top:14px" onclick="ouvrirEdition(\''+id+'\')">'+ico('pencil',18)+'Modifier la fiche</button>'+
    '<div class="eyebrow" style="margin:16px 0 10px">Reporter de</div>'+
    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">'+
    [[3,'3 jours'],[7,'7 jours'],[15,'15 jours'],[30,'1 mois']].map(([j,l])=>
@@ -676,36 +752,60 @@ function ouvrirPlus(id){cibleId=id;const r=etat.records.find(x=>x.id===id);
    '<input type="date" id="r_date" onchange="reporterDate(this.value)" style="margin-bottom:16px">'+
    '<button class="btn danger full" onclick="annulerRdv()">'+ico('user-x',18)+'Annuler — perdu de vue</button>';
   document.getElementById('voile').classList.add('ouvert');}
-function fermerVoile(){document.getElementById('voile').classList.remove('ouvert');}
+function fermerVoile(){document.getElementById('voile').classList.remove('ouvert');if(_reponse)repondre(false);}
 function reporter(j){reporterDate(iso(j));}
 function reporterDate(v){if(!v)return;const r=etat.records.find(x=>x.id===cibleId);if(!r)return;
-  r.date=v;r.updated_at=new Date().toISOString();sauver();fermerVoile();rendre();
-  toast('Rendez-vous reporté','Nouvelle date\u00A0: '+fmtLong(v)+'.');syncAuto();planifierRappels();}
+  const avant=memoriser(r);
+  r.date=v;r.updated_at=new Date().toISOString();sauver();fermerVoile();rendreSurPlace();syncAuto();planifierRappels();
+  toastAnnulable('Rendez-vous reporté','Nouvelle date : '+fmtLong(v)+'.',r,avant);}
 function annulerRdv(){const r=etat.records.find(x=>x.id===cibleId);if(!r)return;
-  if(!confirm('Marquer « '+r.nom+' » comme annulé / perdu de vue ?'))return;
+  const avant=memoriser(r);
   r.statut='annule';r.vu_at=new Date().toISOString();r.updated_at=r.vu_at;
-  sauver();fermerVoile();rendre();toast('Suivi annulé',r.nom+' est marqué perdu de vue.','warning');syncAuto();}
+  sauver();fermerVoile();rendreSurPlace();syncAuto();toastAnnulable('Suivi annulé',r.nom+' est marqué perdu de vue.',r,avant,'warning');}
 function reprogrammer(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
+  const avant=memoriser(r);
   r.statut='attente';r.vu_at=null;r.date=iso(7);r.updated_at=new Date().toISOString();
-  sauver();ongletActif='avenir';rendre();toast('Suivi reprogrammé',r.nom+' · '+fmtLong(r.date));syncAuto();}
-function supprimer(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
+  sauver();rendreSurPlace();syncAuto();toastAnnulable('Suivi reprogrammé',r.nom+' · '+fmtLong(r.date)+' (onglet À venir)',r,avant);}
+async function supprimer(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
   if(!estMedecin()){toast('Réservé au médecin','Seul un médecin peut supprimer une fiche.','warning');return;}
-  if(!confirm('Supprimer définitivement la fiche de '+r.nom+' ?'))return;
-  r.deleted=1;r.updated_at=new Date().toISOString();sauver();rendre();toast('Fiche supprimée','','warning');syncAuto();}
+  if(!await demander({titre:'Supprimer la fiche ?',texte:'La fiche de '+r.nom+' sera retirée de tous les postes.',ok:'Supprimer',danger:true}))return;
+  const avant=memoriser(r);
+  r.deleted=1;r.updated_at=new Date().toISOString();sauver();rendreSurPlace();syncAuto();
+  toastAnnulable('Fiche supprimée',r.nom,r,avant,'warning');}
+
+/* ============ FENÊTRE DE CONFIRMATION (remplace confirm() du navigateur) ============ */
+let _reponse=null;
+function demander(o){
+  return new Promise(res=>{
+    if(_reponse)_reponse(false);_reponse=res;
+    document.getElementById('modale').innerHTML='<div class="mt">'+ech(o.titre)+'</div>'+
+      '<div class="md" style="margin:8px 0 20px;line-height:1.5">'+ech(o.texte)+'</div>'+
+      '<div style="display:flex;gap:8px"><button class="btn outline" style="flex:1" onclick="repondre(false)">Retour</button>'+
+      '<button class="btn '+(o.danger?'danger':'primary')+'" style="flex:1.4" onclick="repondre(true)">'+ech(o.ok||'Confirmer')+'</button></div>';
+    document.getElementById('voile').classList.add('ouvert');
+  });
+}
+function repondre(v){const f=_reponse;_reponse=null;document.getElementById('voile').classList.remove('ouvert');if(f)f(v);}
 function telIntl(t){let d=(t||'').replace(/\D/g,'');if(d.startsWith('00'))d=d.slice(2);
   if(d.length===10&&d.startsWith('0'))d='225'+d;return d;}
+const CANAUX={whatsapp:['WhatsApp','message-circle'],sms:['SMS','message-square'],appel:['appel','phone']};
+/* Note la relance sur la fiche : visible par tous les postes, pour éviter les doubles appels. */
+function noterRelance(r,canal){const t=new Date().toISOString();
+  Object.assign(r,{relance_at:t,relance_by:etat.user||'',relance_canal:canal,updated_at:t});
+  sauver();rendreSurPlace();syncAuto();}
 function relanceWA(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
-  const m=msgRappel(r);
+  const m=msgRappel(r);noterRelance(r,'whatsapp');
   window.open('https://wa.me/'+telIntl(r.tel)+'?text='+encodeURIComponent(m),'_blank');}
 function msgRappel(r){const c=etat.cab;
-  return 'Bonjour '+r.nom+', rappel de votre rendez-vous prévu le '+fmtLong(r.date)+
+  return 'Bonjour '+r.nom+', rappel de votre rendez-vous prévu le '+fmtLong(r.date)+(r.heure?' à '+fmtHeure(r.heure):'')+
     (r.spec?' ('+r.spec+')':'')+'. Merci de passer nous voir.\n'+
     (c.nom||'Groupe médical Al Nouf')+'\nPour toute question, appelez uniquement le '+(c.tel||'21 50 03 65 62')+'.';}
 function relanceSMS(id){const r=etat.records.find(x=>x.id===id);if(!r)return;
   if(!r.tel){toast('Numéro manquant','Ajoutez un téléphone pour envoyer un SMS.','danger');return;}
+  noterRelance(r,'sms');
   const sep=/iPhone|iPad|Macintosh/i.test(navigator.userAgent)?'&':'?';
   location.href='sms:'+telIntl(r.tel).replace(/^/,'+')+sep+'body='+encodeURIComponent(msgRappel(r));}
-function appeler(id){const r=etat.records.find(x=>x.id===id);if(r)location.href='tel:'+(r.tel||'');}
+function appeler(id){const r=etat.records.find(x=>x.id===id);if(!r)return;noterRelance(r,'appel');location.href='tel:'+(r.tel||'');}
 
 /* ============ RAPPELS ============ */
 function setLead(j){etat.leadDays=j;sauver();rendre();planifierRappels();}
@@ -785,7 +885,22 @@ function restaurer(f){if(!f)return;const l=new FileReader();
 let syncEnCours=false,syncTimer=null;
 function syncAuto(){if(!pret())return;
   clearTimeout(syncTimer);syncTimer=setTimeout(()=>synchroniser(false),1500);}
-const CHAMPS=['id','nom','tel','type','spec','date','note','statut','vu_at','created_by','deleted','created_at','updated_at'];
+const CHAMPS=['id','nom','tel','type','spec','date','heure','note','statut','vu_at','created_by','deleted','created_at','updated_at',
+  'relance_at','relance_by','relance_canal'];
+const NULLABLES=['vu_at','relance_at'];
+let syncErreur=false;
+function enAttenteEnvoi(){return etat.records.filter(r=>!etat.lastPush||(r.updated_at||'')>etat.lastPush).length;}
+/* Pastille dans l'en-tête : hors ligne, ou modifications pas encore envoyées */
+function majEtatSync(){
+  const el=document.getElementById('etatSync');if(!el)return;
+  const n=pret()?enAttenteEnvoi():0, off=!navigator.onLine;
+  const txt=off?'Hors ligne'+(n?' · '+n:''):(syncErreur&&n?n+' non envoyée'+(n>1?'s':''):'');
+  el.className='hsync'+(txt?' on':'');
+  el.innerHTML=txt?ico(off?'wifi-off':'refresh-cw',14)+ech(txt):'';
+  el.title=n?n+' modification(s) en attente d’envoi':'';
+}
+window.addEventListener('online',()=>{majEtatSync();syncAuto();});
+window.addEventListener('offline',majEtatSync);
 async function synchroniser(manuel){
   if(!pret()){if(manuel)toast('Connexion requise','Connectez-vous pour partager les fiches.','warning');return;}
   if(syncEnCours)return;syncEnCours=true;
@@ -794,7 +909,7 @@ async function synchroniser(manuel){
     // 1. Envoyer seulement ce qui a changé ici depuis le dernier envoi.
     const debut=new Date().toISOString();
     const aEnvoyer=etat.records.filter(r=>!etat.lastPush||(r.updated_at||'')>etat.lastPush)
-      .map(r=>{const o={};CHAMPS.forEach(k=>o[k]=r[k]==null?(k==='vu_at'?null:''):r[k]);o.deleted=r.deleted?1:0;return o;});
+      .map(r=>{const o={};CHAMPS.forEach(k=>o[k]=r[k]==null?(NULLABLES.includes(k)?null:''):r[k]);o.deleted=r.deleted?1:0;return o;});
     if(aEnvoyer.length)await api('rdv?on_conflict=id',{method:'POST',
       headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(aEnvoyer)});
     etat.lastPush=debut;
@@ -805,13 +920,15 @@ async function synchroniser(manuel){
       if(!loc)etat.records.push(r);
       else if((r.updated_at||'')>(loc.updated_at||''))Object.assign(loc,r);}
     etat.lastPull=new Date().toISOString();sauver();
-    if(!document.getElementById('feuilleForm').classList.contains('ouverte'))rendreSurPlace();
+    if(!document.getElementById('feuilleForm').classList.contains('ouverte'))rendreSiLibre();
+    syncErreur=false;
     const d2=document.getElementById('syncDot');if(d2)d2.className='sdot on';
     if(manuel)toast('Synchronisation terminée',dist.length+' fiches partagées.');
   }catch(e){
+    syncErreur=true;
     if(dot)dot.className='sdot err';
     if(manuel)toast('Échec de la synchronisation',e.message,'danger');
-  }finally{syncEnCours=false;}
+  }finally{syncEnCours=false;majEtatSync();}
 }
 
 /* ============ CONNEXION (Supabase Auth, code par e-mail) ============ */
@@ -820,7 +937,8 @@ async function appelAuth(chemin,corps){
   const r=await fetch(base()+'/auth/v1/'+chemin,{method:'POST',
     headers:{'apikey':etat.supa.key,'Content-Type':'application/json'},body:JSON.stringify(corps)});
   const d=await r.json().catch(()=>({}));
-  if(!r.ok){const e=new Error(d.msg||d.error_description||d.message||('Erreur '+r.status));e.status=r.status;throw e;}
+  if(!r.ok){const e=new Error(r.status===429?'Trop de demandes. Patientez une minute avant de réessayer.'
+      :(d.msg||d.error_description||d.message||('Erreur '+r.status)));e.status=r.status;throw e;}
   return d;
 }
 function garderSession(d){
@@ -878,7 +996,7 @@ function rendreAccueil(){
       (configFixe?'':'<button class="lien" onclick="etape=\'config\';rendreAccueil()">Changer de projet Supabase</button>');
   }else if(etape==='code'){
     h+='<div class="q">Code de vérification</div><div class="exp">Code envoyé à <b>'+ech(aEmail)+'</b>. Pensez à regarder dans les spams.</div>'+
-      '<div class="fld"><input type="text" id="a_code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" oninput="this.value=this.value.replace(/\\D/g,\'\')" onkeydown="if(event.key===\'Enter\')verifierCode()"></div>'+
+      '<div class="fld"><input type="text" id="a_code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" oninput="this.value=this.value.replace(/\\D/g,\'\');if(this.value.length===6)verifierCode()" onkeydown="if(event.key===\'Enter\')verifierCode()"></div>'+
       B('Valider','verifierCode()')+
       '<div style="display:flex;justify-content:space-between"><button class="lien" onclick="etape=\'email\';rendreAccueil()">Changer d’adresse</button>'+
       '<button class="lien" onclick="envoyerCode()">Renvoyer le code</button></div>';
@@ -903,7 +1021,7 @@ function rendreAccueil(){
   const f=document.querySelector('#accueil input');if(f&&!occupe)setTimeout(()=>f.focus(),50);
 }
 async function occuper(fn){if(occupe)return;occupe=true;rendreAccueilBoutons();
-  try{await fn();}catch(e){toast('Oups',e.message||String(e),'danger');}finally{occupe=false;rendreAccueilBoutons();}}
+  try{await fn();}catch(e){toast(e.titre||'Action impossible',e.message||String(e),'danger');}finally{occupe=false;rendreAccueilBoutons();}}
 function rendreAccueilBoutons(){document.querySelectorAll('#accueil .btn').forEach(b=>b.disabled=occupe);}
 function validerConfig(){
   const u=document.getElementById('a_url').value.trim(), k=document.getElementById('a_key').value.trim();
@@ -913,7 +1031,7 @@ function validerConfig(){
 function envoyerCode(){
   const champ=document.getElementById('a_email');if(champ)aEmail=champ.value.trim().toLowerCase();
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(aEmail)){toast('Adresse invalide','Vérifiez votre adresse e-mail.','danger');return;}
-  occuper(async()=>{await appelAuth('otp',{email:aEmail,create_user:true});
+  occuper(async()=>{try{await appelAuth('otp',{email:aEmail,create_user:true});}catch(e){e.titre='Envoi du code impossible';throw e;}
     etape='code';rendreAccueil();toast('Code envoyé','Consultez votre boîte '+aEmail+'.','info');});
 }
 function verifierCode(){
@@ -921,7 +1039,10 @@ function verifierCode(){
   if(code.length<6){toast('Code incomplet','Saisissez le code reçu par e-mail.','danger');return;}
   occuper(async()=>{
     try{garderSession(await appelAuth('verify',{type:'email',email:aEmail,token:code}));}
-    catch(e){throw new Error(e.status>=400&&e.status<500?'Code incorrect ou expiré. Demandez-en un nouveau.':e.message);}
+    catch(e){const k=e.status>=400&&e.status<500&&e.status!==429;
+      const err=new Error(k?'Vérifiez le code reçu, ou demandez-en un nouveau.':e.message);
+      err.titre=k?'Code incorrect ou expiré':'Vérification impossible';
+      const c=document.getElementById('a_code');if(c){c.value='';c.focus();}throw err;}
     await verifierMembre(true);
   });
 }
@@ -929,8 +1050,8 @@ function creerProfil(){
   const nom=document.getElementById('a_nom').value.trim().replace(/\s+/g,' ');
   if(nom.length<2){toast('Nom manquant','Indiquez votre prénom et votre nom.','danger');return;}
   occuper(async()=>{
-    await api('membres',{method:'POST',headers:{'Prefer':'return=minimal'},
-      body:JSON.stringify({id:etat.auth.user.id,nom,poste:aPoste})});
+    try{await api('membres',{method:'POST',headers:{'Prefer':'return=minimal'},
+      body:JSON.stringify({id:etat.auth.user.id,nom,poste:aPoste})});}catch(e){e.titre='Enregistrement impossible';throw e;}
     await verifierMembre(true);
   });
 }
@@ -956,10 +1077,11 @@ async function verifierMembre(afficherErreur){
     else if(afficherErreur)toast('Vérification impossible',e.message,'warning');
   }
 }
-function deconnecter(){
-  const nonEnvoyes=etat.records.filter(r=>!etat.lastPush||(r.updated_at||'')>etat.lastPush).length;
-  if(!confirm(nonEnvoyes&&pret()?nonEnvoyes+' modification(s) pas encore synchronisée(s) seront perdues. Se déconnecter quand même ?'
-     :'Se déconnecter ? Les fiches seront retirées de cet appareil.'))return;
+async function deconnecter(){
+  const nonEnvoyes=enAttenteEnvoi();
+  if(!await demander({titre:'Se déconnecter ?',danger:true,ok:'Se déconnecter',
+      texte:nonEnvoyes&&pret()?nonEnvoyes+' modification(s) pas encore envoyée(s) seront perdues. Les fiches seront retirées de cet appareil.'
+        :'Les fiches seront retirées de cet appareil. Vous pourrez vous reconnecter avec votre e-mail.'}))return;
   const a=etat.auth;
   if(a)fetch(base()+'/auth/v1/logout',{method:'POST',headers:{'apikey':etat.supa.key,'Authorization':'Bearer '+a.access_token}}).catch(()=>{});
   if(window.RDVmedPush)RDVmedPush.desactiver();
@@ -1014,7 +1136,7 @@ let equipe=null;
 function enAttente(){return estMedecin()&&equipe?equipe.filter(m=>!m.valide):[];}
 async function chargerEquipe(){
   try{equipe=await api('membres?select=id,nom,poste,valide,email&order=valide.asc,nom.asc');}catch(e){return;}
-  if(ongletActif==='reglages')rendreSurPlace();else rendre();
+  if(ongletActif==='reglages')rendreSiLibre();else rendre();
 }
 function vueEquipe(){
   let h='<div class="card md" style="margin-top:12px">'+
@@ -1052,7 +1174,8 @@ async function validerMembre(id){const m=(equipe||[]).find(x=>x.id===id);if(!m)r
   chargerEquipe();
 }
 async function retirerMembre(id){const m=(equipe||[]).find(x=>x.id===id);if(!m)return;
-  if(!confirm((m.valide?'Retirer ':'Refuser ')+m.nom+' de l’équipe ? Cette personne n’aura plus accès aux rendez-vous.'))return;
+  if(!await demander({titre:(m.valide?'Retirer ':'Refuser ')+m.nom+' ?',danger:true,ok:m.valide?'Retirer':'Refuser',
+      texte:'Cette personne n’aura plus accès aux rendez-vous.'}))return;
   try{await api('membres?id=eq.'+id,{method:'DELETE'});toast(m.valide?'Membre retiré':'Demande refusée',m.nom,'warning');}
   catch(e){toast('Action impossible',e.message,'danger');}
   chargerEquipe();
@@ -1060,11 +1183,13 @@ async function retirerMembre(id){const m=(equipe||[]).find(x=>x.id===id);if(!m)r
 
 /* ============ TOAST ============ */
 let toastTimer=null;
-function toast(titre,texte,tone){
+function toast(titre,texte,tone,action){
   const t=document.getElementById('toast');
-  t.className='on'+(tone&&tone!=='success'?' '+tone:'');
-  t.innerHTML='<div class="tt">'+ech(titre)+'</div>'+(texte?'<div class="td">'+ech(texte)+'</div>':'');
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.className='',3200);
+  _annuler=null; // un nouveau message remplace l'annulation proposée
+  t.className='on'+(tone&&tone!=='success'?' '+tone:'')+(action?' act':'');
+  t.innerHTML='<div class="tx"><div class="tt">'+ech(titre)+'</div>'+(texte?'<div class="td">'+ech(texte)+'</div>':'')+'</div>'+
+    (action?'<button class="ta" onclick="document.getElementById(\'toast\').className=\'\';'+action.fn+'">'+ech(action.label)+'</button>':'');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>{t.className='';_annuler=null;},action?7000:3200);
 }
 
 /* ============ DÉMARRAGE ============ */

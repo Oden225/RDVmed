@@ -93,6 +93,10 @@ create table if not exists rdv (
   updated_at text
 );
 alter table rdv add column if not exists created_by_id uuid;
+alter table rdv add column if not exists heure text default '';          -- facultatif, 'HH:MM'
+alter table rdv add column if not exists relance_at text;                -- dernière relance du patient
+alter table rdv add column if not exists relance_by text default '';
+alter table rdv add column if not exists relance_canal text default '';  -- whatsapp, sms ou appel
 create index if not exists rdv_updated on rdv (updated_at);
 alter table rdv enable row level security;
 
@@ -115,6 +119,9 @@ begin
     if auth.uid() is not null then
       new.created_by_id := auth.uid();
       new.created_by := coalesce((select nom from membres where id = auth.uid()), new.created_by);
+      if new.relance_at is not null then
+        new.relance_by := coalesce((select nom from membres where id = auth.uid()), new.relance_by);
+      end if;
     end if;
     return new;
   end if;
@@ -126,6 +133,10 @@ begin
   new.created_by := old.created_by;
   new.created_by_id := old.created_by_id;
   new.created_at := old.created_at;
+  -- La relance est signée par le compte qui l'a faite.
+  if auth.uid() is not null and new.relance_at is distinct from old.relance_at then
+    new.relance_by := coalesce((select nom from membres where id = auth.uid()), new.relance_by);
+  end if;
 
   -- Seul un médecin peut supprimer : sinon la fiche est conservée, et datée
   -- de maintenant pour que l'appareil la récupère à la synchronisation suivante.
