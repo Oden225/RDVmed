@@ -3,6 +3,7 @@
 Les notifications arrivent même quand l'application est fermée :
 - **Nouveau rendez-vous** : quand quelqu'un ajoute un rendez-vous, les autres postes sont prévenus (fonction `notify-new`).
 - **Rappel du jour** : chaque matin, un résumé des rendez-vous du jour, du lendemain et des retards (fonction `rappel-quotidien`).
+- **SMS aux patients** (optionnel) : la veille du rendez-vous, le patient reçoit un SMS de rappel (même fonction, voir section 6).
 
 Pré-requis : le partage Supabase est déjà en place (voir `README-DEPLOIEMENT.md`).
 
@@ -61,3 +62,27 @@ Une fois connecté et validé : RDVmed → **Réglages** → **Activer les notif
 - Les téléphones désinstallés sont retirés automatiquement de `push_subscriptions`.
 
 Sur iPhone, les notifications ne fonctionnent que si RDVmed a été **ajoutée à l'écran d'accueil** (iOS 16.4 ou plus).
+
+## 6. SMS de rappel aux patients (Orange Côte d'Ivoire, optionnel)
+Chaque matin, `rappel-quotidien` envoie aussi un SMS aux patients dont le rendez-vous est **demain** :
+> Bonjour Kouassi, rappel de votre rendez-vous demain à 09h30 au Groupe médical Al Nouf. Pour toute question, appelez le 21 50 03 65 62.
+
+- Nom et numéro du cabinet : ceux de **Réglages → Identité du cabinet**.
+- Un seul SMS par rendez-vous ; la fiche affiche ensuite « Relancé par Rappel automatique · SMS ».
+- Case **« Rappel SMS automatique »** dans la fiche : la décocher pour un patient qui ne veut pas de SMS.
+- Seuls les numéros ivoiriens à 10 chiffres sont pris en compte.
+
+Mise en place :
+1. **developer.orange.com** → créer un compte → **My apps → Create app**.
+2. Dans l'application : **Add API → SMS Côte d'Ivoire**. Noter **Client ID** et **Client secret** (ne les envoyez à personne).
+3. Acheter un forfait SMS depuis la ligne Orange du cabinet (Orange Money, `#144*621#` ou le portail Orange Developer).
+4. Supabase → **Edge Functions → Secrets** :
+   - `ORANGE_CLIENT_ID` = Client ID
+   - `ORANGE_CLIENT_SECRET` = Client secret
+   - `ORANGE_SENDER` = numéro Orange qui a acheté le forfait, ex. `2250707070707`
+5. Relancer `supabase.sql`, puis redéployer `rappel-quotidien`.
+6. Test : **rappel-quotidien → Test** ; la réponse indique `sms_envoyes`, `sms_sans_numero`, `sms_echecs` et le motif d'un refus (forfait épuisé, identifiants…).
+
+Réglage facultatif : `RAPPEL_PATIENT_JOURS=2` pour prévenir 2 jours avant (`0` = le jour même).
+Sans les secrets `ORANGE_*`, aucun SMS n'est envoyé et le reste fonctionne normalement.
+Pensez à informer les patients (accueil ou fiche d'admission) qu'ils recevront un SMS de rappel.

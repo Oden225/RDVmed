@@ -97,6 +97,8 @@ alter table rdv add column if not exists heure text default '';          -- facu
 alter table rdv add column if not exists relance_at text;                -- dernière relance du patient
 alter table rdv add column if not exists relance_by text default '';
 alter table rdv add column if not exists relance_canal text default '';  -- whatsapp, sms ou appel
+alter table rdv add column if not exists sms_auto boolean not null default true;  -- rappel SMS automatique au patient
+alter table rdv add column if not exists rappel_sms_at text;                       -- date du RDV pour laquelle le SMS est parti
 create index if not exists rdv_updated on rdv (updated_at);
 alter table rdv enable row level security;
 
