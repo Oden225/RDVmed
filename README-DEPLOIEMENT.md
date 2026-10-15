@@ -59,4 +59,4 @@ Voir `README-notifications.md` (fonctions Supabase dans `supabase/functions/`).
 pwabuilder.com → coller l'URL → Android → **Signing key → Use mine** avec votre keystore.
 
 ## Mises à jour
-Modifier les fichiers → incrémenter le numéro de `CACHE` dans `sw.js` (actuellement `rdvmed-v8`) → re-uploader.
+Modifier les fichiers → incrémenter le numéro de `CACHE` dans `sw.js` (actuellement `rdvmed-v9`) → re-uploader.
