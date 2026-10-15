@@ -273,12 +273,52 @@ nav button.tb .pip{position:absolute;top:4px;right:calc(50% - 22px);min-width:16
   background:var(--surface-brand-soft);color:var(--green-800);font-weight:600;font-size:var(--text-xs);
   display:flex;align-items:center;justify-content:center}
 .etapes .ic{display:inline-flex;vertical-align:-4px;color:var(--blue-600)}
+/* ===== Écran d'ouverture ===== */
+#splash{position:fixed;inset:0;z-index:100;background:var(--surface-page);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:0;cursor:pointer;
+  transition:opacity 420ms var(--ease-standard),transform 420ms var(--ease-standard)}
+#splash.fin{opacity:0;transform:scale(1.04);pointer-events:none}
+#splash img{height:84px;width:auto;opacity:0;animation:spLogo 700ms cubic-bezier(.2,1.4,.4,1) 80ms forwards}
+#splash .mot{display:flex;margin-top:18px;font-family:var(--font-display);font-weight:600;font-size:40px;
+  letter-spacing:.06em;color:var(--text-heading);line-height:1;overflow:hidden;padding:2px 0}
+#splash .mot span{display:inline-block;opacity:0;transform:translateY(100%);
+  animation:spLettre 520ms var(--ease-out) forwards}
+#splash .mot span.med{color:var(--brand-primary)}
+#splash .trait{width:0;height:3px;border-radius:var(--radius-pill);background:var(--brand-primary);margin:14px 0 10px;
+  animation:spTrait 600ms var(--ease-out) 760ms forwards}
+#splash .st{font-size:var(--text-2xs);letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);
+  opacity:0;animation:fadeIn 500ms var(--ease-out) 950ms forwards}
+@keyframes spLogo{0%{opacity:0;transform:scale(.6) rotate(-8deg)}100%{opacity:1;transform:none}}
+@keyframes spLettre{to{opacity:1;transform:none}}
+@keyframes spTrait{to{width:64px}}
+@media (prefers-reduced-motion:reduce){
+  #splash img,#splash .mot span,#splash .st{animation:fadeIn 300ms both}
+  #splash .trait{animation:none;width:64px}
+}
 @media (prefers-reduced-motion:reduce){
   main>section,.stk>*,.feuille.ouverte,.modale,#toast{animation:fadeIn var(--dur-fast) both}
 }
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true" onclick="finSplash()">
+  <img src="logo-mark.svg" alt="" onerror="this.src='icon-192.png'">
+  <div class="mot" id="splashMot"></div>
+  <div class="trait"></div>
+  <div class="st">Groupe médical Al Nouf</div>
+</div>
+<script>
+/* Écran d'ouverture : le nom s'écrit lettre par lettre pendant que l'app démarre dessous. */
+(function(){
+  var m=document.getElementById('splashMot');
+  'RDVMED'.split('').forEach(function(c,i){var s=document.createElement('span');s.textContent=c;
+    if(i>=3)s.className='med';s.style.animationDelay=(300+i*70)+'ms';m.appendChild(s);});
+  window.finSplash=function(){var sp=document.getElementById('splash');if(!sp||sp.classList.contains('fin'))return;
+    sp.classList.add('fin');setTimeout(function(){sp.remove();},450);};
+  var court=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(window.finSplash,court?700:1700);
+})();
+</script>
 
 <header>
   <div class="lock">
