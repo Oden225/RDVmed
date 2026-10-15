@@ -100,7 +100,7 @@ export function fmtDate(s: string): string {
 /* RDVmed — envoi de SMS aux patients par l'API SMS d'Orange Côte d'Ivoire.
    Secrets Supabase nécessaires (sinon aucun SMS n'est envoyé) :
      ORANGE_CLIENT_ID, ORANGE_CLIENT_SECRET : application Orange Developer
-     ORANGE_SENDER : numéro Orange qui a acheté le forfait SMS, ex. 2250707070707 */
+     ORANGE_SENDER : numéro d'expéditeur indiqué par Orange, ex. 2250000 */
 
 const API = () => (Deno.env.get("ORANGE_API") || "https://api.orange.com").replace(/\/$/, "");
 
@@ -137,8 +137,10 @@ async function jeton(): Promise<string> {
 
 /* Envoie un SMS ; lève une erreur lisible en cas de refus (forfait épuisé, numéro invalide…). */
 export async function envoyerSMS(destinataire: string, message: string): Promise<void> {
-  const exp = numeroCI(Deno.env.get("ORANGE_SENDER") || "");
-  if (!exp) throw new Error("ORANGE_SENDER invalide (attendu : 225 suivi des 10 chiffres)");
+  // Numéro d'expéditeur indiqué par Orange : court (2250000) ou ligne complète (225 + 10 chiffres).
+  let exp = String(Deno.env.get("ORANGE_SENDER") || "").replace(/\D/g, "");
+  if (exp.length === 10) exp = "225" + exp;
+  if (!/^225\d{4,10}$/.test(exp)) throw new Error("ORANGE_SENDER invalide (ex. 2250000, ou 225 suivi des 10 chiffres)");
   const sender = encodeURIComponent("tel:+" + exp);
   const r = await fetch(API() + "/smsmessaging/v1/outbound/" + sender + "/requests", {
     method: "POST",

@@ -79,7 +79,7 @@ Mise en place :
 4. Supabase → **Edge Functions → Secrets** :
    - `ORANGE_CLIENT_ID` = Client ID
    - `ORANGE_CLIENT_SECRET` = Client secret
-   - `ORANGE_SENDER` = numéro Orange qui a acheté le forfait, ex. `2250707070707`
+   - `ORANGE_SENDER` = numéro d'expéditeur indiqué par Orange pour la Côte d'Ivoire (en général `2250000`)
 5. Relancer `supabase.sql`, puis redéployer `rappel-quotidien`.
 6. Test : **rappel-quotidien → Test** ; la réponse indique `sms_envoyes`, `sms_sans_numero`, `sms_echecs` et le motif d'un refus (forfait épuisé, identifiants…).
 
