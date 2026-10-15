@@ -32,7 +32,9 @@ export function base() {
 
 export type Message = { title: string; body: string; tag?: string; id?: string | null; url?: string };
 
-/* Envoie le message à chaque abonnement, sauf ceux du membre `sauf` (son id).
+/* Envoie le message à chaque abonnement, sauf le téléphone `sauf` (son endpoint) :
+   un même compte ouvert sur deux téléphones est donc prévenu sur l'autre.
+   Priorité haute : sinon Android retarde la notification tant que l'écran est éteint.
    Les abonnements expirés (404/410) sont supprimés au passage. */
 export async function envoyerATous(msg: Message, sauf = "") {
   webpush.setVapidDetails(
@@ -48,9 +50,9 @@ export async function envoyerATous(msg: Message, sauf = "") {
   let envoyes = 0, echecs = 0;
   const expires: string[] = [];
   await Promise.all((subs || []).map(async (s) => {
-    if (sauf && s.membre_id === sauf) return;
+    if (sauf && s.endpoint === sauf) return;
     try {
-      await webpush.sendNotification(s.subscription, payload, { TTL: 60 * 60 * 12 });
+      await webpush.sendNotification(s.subscription, payload, { TTL: 60 * 60 * 12, urgency: "high" });
       envoyes++;
     } catch (e) {
       const code = (e as { statusCode?: number }).statusCode;
