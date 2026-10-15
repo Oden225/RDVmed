@@ -1,6 +1,6 @@
 /* RDVmed — notify-new
    Appelée par l'app (push-client.js → RDVmedPush.notifierNouveau) juste après
-   la création d'un rendez-vous : prévient tous les AUTRES postes abonnés.
+   la création d'un rendez-vous : prévient tous les AUTRES téléphones abonnés.
    Réservée aux membres connectés et validés. */
 import { CORS, envoyerATous, fmtDate, json, membreAppelant, NOMTYPE } from "../_shared/push.ts";
 
@@ -18,9 +18,11 @@ Deno.serve(async (req) => {
   }
   if (!auteur) return json({ erreur: "Connexion requise (membre validé)" }, 401);
 
-  let rdv: Record<string, unknown> | undefined;
+  let rdv: Record<string, unknown> | undefined, appareil = "";
   try {
-    rdv = (await req.json())?.rdv;
+    const corps = await req.json();
+    rdv = corps?.rdv;
+    appareil = court(corps?.endpoint, 1000); // le téléphone qui a créé le rendez-vous
   } catch (_) { /* corps invalide */ }
   const nom = court(rdv?.nom, 80);
   const date = court(rdv?.date, 10);
@@ -39,7 +41,7 @@ Deno.serve(async (req) => {
   };
 
   try {
-    return json(await envoyerATous(msg, auteur.id));
+    return json(await envoyerATous(msg, appareil));
   } catch (e) {
     return json({ erreur: (e as Error).message }, 500);
   }

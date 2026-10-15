@@ -80,6 +80,12 @@
     const url = cfg.supabaseUrl, key = cfg.supabaseAnonKey;
     if (!url || !key || !rdv) return null;
     const jeton = cfg.token || key;
+    let endpoint = '';
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      const sub = reg && await reg.pushManager.getSubscription();
+      endpoint = (sub && sub.endpoint) || '';
+    } catch (e) { /* pas abonné : tous les téléphones sont prévenus */ }
     try {
       const r = await fetch(url.replace(/\/$/, '') + '/functions/v1/notify-new', {
         method: 'POST',
@@ -88,7 +94,7 @@
           apikey: key,
           Authorization: 'Bearer ' + jeton,
         },
-        body: JSON.stringify({ rdv: rdv }),
+        body: JSON.stringify({ rdv: rdv, endpoint: endpoint }),
       });
       return await r.json();
     } catch (e) {

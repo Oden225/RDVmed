@@ -265,6 +265,8 @@ nav button.tb .pip{position:absolute;top:4px;right:calc(50% - 22px);min-width:16
 #a_code{font-family:var(--font-mono);font-size:var(--text-2xl);letter-spacing:.3em;text-align:center;height:56px}
 .postes{display:flex;flex-wrap:wrap;gap:6px}
 .btn[disabled]{opacity:.55;pointer-events:none}
+.coche{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:var(--text-sm);color:var(--text-body);cursor:pointer}
+.coche input{width:22px;height:22px;flex:none;accent-color:var(--brand-primary);box-shadow:none}
 .etapes{margin:14px 0 4px;padding:0;list-style:none;counter-reset:e}
 .etapes li{counter-increment:e;display:flex;gap:12px;align-items:flex-start;padding:10px 0;
   border-bottom:1px solid var(--border-subtle);font-size:var(--text-sm);line-height:1.5}
@@ -353,7 +355,9 @@ nav button.tb .pip{position:absolute;top:4px;right:calc(50% - 22px);min-width:16
       <input type="text" id="f_nom" placeholder="ex. Aïcha Koné" autocomplete="off"></div>
     <div class="fld"><label class="lbl" for="f_tel">Téléphone</label>
       <input type="tel" id="f_tel" class="mono" placeholder="07 08 51 63 08" inputmode="tel">
-      <div class="hint">Nécessaire pour la relance WhatsApp, SMS ou l'appel.</div></div>
+      <div class="hint">Nécessaire pour la relance WhatsApp, SMS ou l'appel.</div>
+      <label class="coche" for="f_sms"><input type="checkbox" id="f_sms" checked>
+        <span>Rappel SMS automatique au patient avant le rendez-vous</span></label></div>
     <div class="fld"><label class="lbl">Type de passage *</label>
       <div class="chips" id="f_type" style="display:flex;flex-wrap:wrap;gap:6px">
         <button class="tag" data-v="specialiste" onclick="selType(this)">RDV spécialiste</button>
@@ -720,6 +724,7 @@ function ouvrirFormulaire(r){
   document.getElementById('btnSave').textContent=r?'Enregistrer les modifications':'Enregistrer le suivi';
   const v={f_nom:'nom',f_tel:'tel',f_spec:'spec',f_note:'note',f_date:'date',f_heure:'heure'};
   for(const i in v)document.getElementById(i).value=r?(r[v[i]]||''):'';
+  document.getElementById('f_sms').checked=r?r.sms_auto!==false:true;
   document.querySelectorAll('.fld .tag[onclick^="dateRapide"]').forEach(c=>c.classList.remove('sel'));
   document.querySelectorAll('#f_type .tag').forEach(c=>c.classList.toggle('sel',c.dataset.v===(r?r.type:'controle')));
   document.getElementById('feuilleForm').classList.add('ouverte');
@@ -736,7 +741,7 @@ async function enregistrer(){
   if(!date){toast('Date manquante','Choisissez la date prévue.','danger');return;}
   const champs={nom,type,date,tel:document.getElementById('f_tel').value.trim(),
     spec:document.getElementById('f_spec').value.trim(),heure:document.getElementById('f_heure').value||'',
-    note:document.getElementById('f_note').value.trim()};
+    note:document.getElementById('f_note').value.trim(),sms_auto:document.getElementById('f_sms').checked};
   const t=new Date().toISOString();
   if(editId){
     const r=etat.records.find(x=>x.id===editId);if(!r){fermerForm();return;}
@@ -820,7 +825,7 @@ function demander(o){
     if(_reponse)_reponse(false);_reponse=res;
     document.getElementById('modale').innerHTML='<div class="mt">'+ech(o.titre)+'</div>'+
       '<div class="md" style="margin:8px 0 20px;line-height:1.5">'+ech(o.texte)+'</div>'+
-      '<div style="display:flex;gap:8px"><button class="btn outline" style="flex:1" onclick="repondre(false)">Retour</button>'+
+      '<div style="display:flex;gap:8px"><button class="btn outline" style="flex:1" onclick="repondre(false)">'+ech(o.annuler||'Retour')+'</button>'+
       '<button class="btn '+(o.danger?'danger':'primary')+'" style="flex:1.4" onclick="repondre(true)">'+ech(o.ok||'Confirmer')+'</button></div>';
     document.getElementById('voile').classList.add('ouvert');
   });
@@ -870,6 +875,9 @@ function ouvrirRappels(){
 async function activerNotif(){
   if(etatNotif()==='unsupported'){toast('Non disponible','Les notifications ne fonctionnent pas ici.','warning');return;}
   try{
+    // Demandée tout de suite, pendant le geste de l'utilisateur (sinon iPhone refuse).
+    if(await Notification.requestPermission()!=='granted'){
+      toast('Autorisation refusée','Réactivez les notifications dans les réglages du téléphone.','danger');rendre();return;}
     if(window.RDVmedPush&&pret()){
       await RDVmedPush.activer({supabaseUrl:etat.supa.url,supabaseAnonKey:etat.supa.key,token:await jeton(),
         membreId:etat.auth.user.id,utilisateur:etat.membre.nom});
@@ -881,6 +889,27 @@ async function activerNotif(){
     toast('Notifications activées','Vous serez prévenu '+etat.leadDays+'\u00A0jours avant.');
     rendre();planifierRappels();
   }catch(e){toast('Échec de l\u2019activation',e.message||'','danger');rendre();}
+}
+/* Autorisation déjà donnée : on (ré)inscrit ce téléphone sans rien demander,
+   pour qu'il reçoive bien les notifications même s'il n'était pas enregistré. */
+async function abonnerSilencieux(){
+  if(!window.RDVmedPush||!pret()||etatNotif()!=='granted')return;
+  try{await RDVmedPush.activer({supabaseUrl:etat.supa.url,supabaseAnonKey:etat.supa.key,token:await jeton(),
+    membreId:etat.auth.user.id,utilisateur:etat.membre.nom});}catch(e){}
+}
+/* Première entrée dans l'application : proposer d'activer les notifications.
+   Si la personne répond « Plus tard », on repose la question 3 jours après. */
+function proposerNotif(){
+  if(!pret()||etatNotif()!=='default')return;
+  let quand=0;try{quand=+localStorage.getItem('rdvmed-notif-plus-tard')||0;}catch(e){}
+  if(Date.now()-quand<3*864e5)return;
+  setTimeout(async()=>{
+    if(!pret()||etatNotif()!=='default'||document.getElementById('voile').classList.contains('ouvert'))return;
+    const ok=await demander({titre:'Activer les notifications ?',ok:'Activer',annuler:'Plus tard',
+      texte:'Votre téléphone sonnera quand un collègue ajoute un rendez-vous, et chaque matin pour les rendez-vous du jour, même quand l\u2019application est fermée.'});
+    if(ok)activerNotif();
+    else{try{localStorage.setItem('rdvmed-notif-plus-tard',String(Date.now()));}catch(e){}}
+  },2500);
 }
 function testNotif(){
   if(etatNotif()!=='granted'){activerNotif();return;}
@@ -926,7 +955,7 @@ let syncEnCours=false,syncTimer=null;
 function syncAuto(){if(!pret())return;
   clearTimeout(syncTimer);syncTimer=setTimeout(()=>synchroniser(false),1500);}
 const CHAMPS=['id','nom','tel','type','spec','date','heure','note','statut','vu_at','created_by','deleted','created_at','updated_at',
-  'relance_at','relance_by','relance_canal'];
+  'relance_at','relance_by','relance_canal','sms_auto'];
 const NULLABLES=['vu_at','relance_at'];
 let syncErreur=false;
 function enAttenteEnvoi(){return etat.records.filter(r=>!etat.lastPush||(r.updated_at||'')>etat.lastPush).length;}
@@ -949,7 +978,7 @@ async function synchroniser(manuel){
     // 1. Envoyer seulement ce qui a changé ici depuis le dernier envoi.
     const debut=new Date().toISOString();
     const aEnvoyer=etat.records.filter(r=>!etat.lastPush||(r.updated_at||'')>etat.lastPush)
-      .map(r=>{const o={};CHAMPS.forEach(k=>o[k]=r[k]==null?(NULLABLES.includes(k)?null:''):r[k]);o.deleted=r.deleted?1:0;return o;});
+      .map(r=>{const o={};CHAMPS.forEach(k=>o[k]=r[k]==null?(NULLABLES.includes(k)?null:''):r[k]);o.deleted=r.deleted?1:0;o.sms_auto=r.sms_auto!==false;return o;});
     if(aEnvoyer.length)await api('rdv?on_conflict=id',{method:'POST',
       headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(aEnvoyer)});
     etat.lastPush=debut;
@@ -1108,7 +1137,8 @@ async function verifierMembre(afficherErreur){
     etat.membre=m;etat.user=m.nom;sauver();
     if(!m.valide){etape='attente';montrerAccueil();return;}
     cacherAccueil();
-    if(!avant){ongletActif='jour';rendre();toast('Bienvenue '+m.nom,POSTES[m.poste]||'');synchroniser(false);planifierRappels();}
+    if(!avant){ongletActif='jour';rendre();toast('Bienvenue '+m.nom,POSTES[m.poste]||'');synchroniser(false);planifierRappels();
+      abonnerSilencieux();proposerNotif();}
     else rendreSurPlace();
     if(m.poste==='medecin')chargerEquipe();
   }catch(e){
@@ -1238,7 +1268,7 @@ async function demarrer(){
   appliquerConfig();rendre();
   if(!etat.supa.url||!etat.supa.key){etape='config';montrerAccueil();return;}
   if(!etat.auth){etape='email';montrerAccueil();return;}
-  if(pret()){cacherAccueil();synchroniser(false);planifierRappels();} // fonctionne aussi hors ligne
+  if(pret()){cacherAccueil();synchroniser(false);planifierRappels();abonnerSilencieux();proposerNotif();} // fonctionne aussi hors ligne
   verifierMembre(false);
 }
 demarrer();
