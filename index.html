@@ -825,7 +825,7 @@ function demander(o){
     if(_reponse)_reponse(false);_reponse=res;
     document.getElementById('modale').innerHTML='<div class="mt">'+ech(o.titre)+'</div>'+
       '<div class="md" style="margin:8px 0 20px;line-height:1.5">'+ech(o.texte)+'</div>'+
-      '<div style="display:flex;gap:8px"><button class="btn outline" style="flex:1" onclick="repondre(false)">Retour</button>'+
+      '<div style="display:flex;gap:8px"><button class="btn outline" style="flex:1" onclick="repondre(false)">'+ech(o.annuler||'Retour')+'</button>'+
       '<button class="btn '+(o.danger?'danger':'primary')+'" style="flex:1.4" onclick="repondre(true)">'+ech(o.ok||'Confirmer')+'</button></div>';
     document.getElementById('voile').classList.add('ouvert');
   });
@@ -875,6 +875,9 @@ function ouvrirRappels(){
 async function activerNotif(){
   if(etatNotif()==='unsupported'){toast('Non disponible','Les notifications ne fonctionnent pas ici.','warning');return;}
   try{
+    // Demandée tout de suite, pendant le geste de l'utilisateur (sinon iPhone refuse).
+    if(await Notification.requestPermission()!=='granted'){
+      toast('Autorisation refusée','Réactivez les notifications dans les réglages du téléphone.','danger');rendre();return;}
     if(window.RDVmedPush&&pret()){
       await RDVmedPush.activer({supabaseUrl:etat.supa.url,supabaseAnonKey:etat.supa.key,token:await jeton(),
         membreId:etat.auth.user.id,utilisateur:etat.membre.nom});
@@ -886,6 +889,27 @@ async function activerNotif(){
     toast('Notifications activées','Vous serez prévenu '+etat.leadDays+'\u00A0jours avant.');
     rendre();planifierRappels();
   }catch(e){toast('Échec de l\u2019activation',e.message||'','danger');rendre();}
+}
+/* Autorisation déjà donnée : on (ré)inscrit ce téléphone sans rien demander,
+   pour qu'il reçoive bien les notifications même s'il n'était pas enregistré. */
+async function abonnerSilencieux(){
+  if(!window.RDVmedPush||!pret()||etatNotif()!=='granted')return;
+  try{await RDVmedPush.activer({supabaseUrl:etat.supa.url,supabaseAnonKey:etat.supa.key,token:await jeton(),
+    membreId:etat.auth.user.id,utilisateur:etat.membre.nom});}catch(e){}
+}
+/* Première entrée dans l'application : proposer d'activer les notifications.
+   Si la personne répond « Plus tard », on repose la question 3 jours après. */
+function proposerNotif(){
+  if(!pret()||etatNotif()!=='default')return;
+  let quand=0;try{quand=+localStorage.getItem('rdvmed-notif-plus-tard')||0;}catch(e){}
+  if(Date.now()-quand<3*864e5)return;
+  setTimeout(async()=>{
+    if(!pret()||etatNotif()!=='default'||document.getElementById('voile').classList.contains('ouvert'))return;
+    const ok=await demander({titre:'Activer les notifications ?',ok:'Activer',annuler:'Plus tard',
+      texte:'Votre téléphone sonnera quand un collègue ajoute un rendez-vous, et chaque matin pour les rendez-vous du jour, même quand l\u2019application est fermée.'});
+    if(ok)activerNotif();
+    else{try{localStorage.setItem('rdvmed-notif-plus-tard',String(Date.now()));}catch(e){}}
+  },2500);
 }
 function testNotif(){
   if(etatNotif()!=='granted'){activerNotif();return;}
@@ -1113,7 +1137,8 @@ async function verifierMembre(afficherErreur){
     etat.membre=m;etat.user=m.nom;sauver();
     if(!m.valide){etape='attente';montrerAccueil();return;}
     cacherAccueil();
-    if(!avant){ongletActif='jour';rendre();toast('Bienvenue '+m.nom,POSTES[m.poste]||'');synchroniser(false);planifierRappels();}
+    if(!avant){ongletActif='jour';rendre();toast('Bienvenue '+m.nom,POSTES[m.poste]||'');synchroniser(false);planifierRappels();
+      abonnerSilencieux();proposerNotif();}
     else rendreSurPlace();
     if(m.poste==='medecin')chargerEquipe();
   }catch(e){
@@ -1243,7 +1268,7 @@ async function demarrer(){
   appliquerConfig();rendre();
   if(!etat.supa.url||!etat.supa.key){etape='config';montrerAccueil();return;}
   if(!etat.auth){etape='email';montrerAccueil();return;}
-  if(pret()){cacherAccueil();synchroniser(false);planifierRappels();} // fonctionne aussi hors ligne
+  if(pret()){cacherAccueil();synchroniser(false);planifierRappels();abonnerSilencieux();proposerNotif();} // fonctionne aussi hors ligne
   verifierMembre(false);
 }
 demarrer();
